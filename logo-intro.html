@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; }
+    a { color: #FFC700; text-decoration: none; }
+    a:hover { color: #ffd84d; }
+  </style>
+</helmet>
+<div style="{{ stage }}" onClick="{{ advance }}">
+  <div style="position:absolute;left:50%;top:50%;width:1440px;height:900px;margin-left:-720px;margin-top:-450px">
+    <div style="{{ scale }}">
+      <div style="{{ lock }}">
+        <img src="assets/dia-mark.png" alt="" style="display:block;width:146px;height:146px">
+      </div>
+      <div style="{{ word }}">
+        <img src="uploads/dia-wordmark.png" alt="" style="display:block;width:262px">
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;bg&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#272727&quot;,&quot;options&quot;:[&quot;#272727&quot;,&quot;#161826&quot;,&quot;#000000&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;onDone&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+const EASE = 'cubic-bezier(.22,1,.36,1)';
+
+/* Portable logo-intro lockup.
+   Timeline (ms from mount):
+     0     black hold
+     1050  mark fades in, 1.58x -> 1.85x apex        (.62s)
+     1830  fast fall 1.85x -> .92x                    (.36s, gravity curve)
+     2190  spring bounce .92x -> 1x                   (.62s, overshoot)
+     2830  slide left + wordmark wipe/fade            (1.05s)
+   Geometry is authored on a 1440x900 canvas:
+     - the lockup box is 442x146 at (40,26); scale anchors on its own center,
+       so tx = 459 + 148z keeps the MARK's center pinned while z changes.
+     - the wordmark lives OUTSIDE the scaled lockup so it never scales during
+       the intro (hard requirement) - only clip-path, X and opacity animate.
+     - docked = the whole pair shrunk to 0.13014 into the header. */
+class Component extends DCLogic {
+  state = { intro: 0, docked: false, k: 1 };
+
+  componentDidMount() {
+    this.fit();
+    window.addEventListener('resize', this.fit);
+    this.t1 = setTimeout(() => this.setState({ intro: 1 }), 1050);
+    this.t2 = setTimeout(() => this.setState({ intro: 2 }), 1830);
+    this.t3 = setTimeout(() => this.setState({ intro: 3 }), 2190);
+    this.t4 = setTimeout(() => this.setState({ intro: 4 }), 2830);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.fit);
+    [this.t1, this.t2, this.t3, this.t4].forEach(clearTimeout);
+  }
+
+  fit = () => {
+    this.setState({ k: Math.min(window.innerWidth / 1440, window.innerHeight / 900) });
+  };
+
+  advance = () => {
+    if (this.state.intro < 4) {
+      [this.t1, this.t2, this.t3, this.t4].forEach(clearTimeout);
+      this.setState({ intro: 4 });
+      return;
+    }
+    if (!this.state.docked) {
+      this.setState({ docked: true });
+      if (this.props.onDone) this.props.onDone();
+    }
+  };
+
+  renderVals() {
+    const { intro, docked, k } = this.state;
+    const z = intro >= 3 ? 1 : intro >= 2 ? .92 : intro >= 1 ? 1.85 : 1.58;
+    const dur = docked ? '1.05s'
+      : intro >= 4 ? '1.05s' : intro === 3 ? '.62s' : intro === 2 ? '.36s' : '.62s';
+    const ease = intro < 2 ? 'cubic-bezier(.25,.62,.3,1)'
+      : intro === 2 ? 'cubic-bezier(.7,.02,.95,.42)'
+      : intro === 3 ? 'cubic-bezier(.18,1.68,.5,1)' : EASE;
+
+    return {
+      advance: this.advance,
+      stage: {
+        position: 'fixed', inset: 0, cursor: 'pointer', userSelect: 'none',
+        background: this.props.bg ?? '#272727'
+      },
+      scale: {
+        width: '1440px', height: '900px', position: 'relative',
+        transformOrigin: 'center', transform: 'scale(' + k + ')'
+      },
+      lock: {
+        position: 'absolute', left: '40px', top: '26px',
+        width: '442px', height: '146px', zIndex: 2,
+        display: 'flex', alignItems: 'center',
+        transformOrigin: '50% 50%',
+        opacity: intro >= 1 ? 1 : 0,
+        transform: docked ? 'translate(-192px,-63.5px) scale(0.13014)'
+          : intro >= 4 ? 'translate(459px,351px) scale(1)'
+          : intro >= 3 ? 'translate(607px,351px) scale(1)'
+          : 'translate(' + (459 + 148 * z) + 'px,351px) scale(' + z + ')',
+        transition: 'transform ' + dur + ' ' + ease + ', opacity .55s ease-out'
+      },
+      word: {
+        position: 'absolute', left: '679px', top: '377px', height: '146px', zIndex: 1,
+        display: 'flex', alignItems: 'center',
+        transformOrigin: '0 50%',
+        clipPath: intro >= 4 ? 'inset(-6% -6% -6% -1%)' : 'inset(-6% 100% -6% -1%)',
+        opacity: intro >= 4 ? 1 : 0,
+        transform: docked ? 'translate(-615.34px,-414.5px) scale(0.13014)'
+          : intro >= 4 ? 'translateX(0)' : 'translateX(-14px)',
+        transition: 'clip-path 1s ' + EASE + ', transform 1.05s ' + EASE + ', opacity .7s ease-out'
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

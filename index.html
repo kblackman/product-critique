@@ -1,1145 +1,524 @@
-<title>Split View Prototype</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<![CDATA[<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="_ds/nocturne-c0c09e78-7d45-4b5d-9a75-40ba7d4b3d40/styles.css">
+  <script src="_ds/nocturne-c0c09e78-7d45-4b5d-9a75-40ba7d4b3d40/_ds_bundle.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #272727; }
+    body { font-family: Figtree, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4, h5, h6 { font-family: Figtree, system-ui, sans-serif; }
+    a { color: #FFC700; text-decoration: none; }
+    a:hover { color: #ffd747; }
+    @keyframes diaFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes diaFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes diaRise { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</helmet>
 
-  :root {
-    --canvas: #e7e9ec;
-    --chrome: #f6f7f8;
-    --chrome-raised: #ffffff;
-    --line: #d6d9dd;
-    --line-soft: #e3e5e8;
-    --ink: #24262b;
-    --ink-mute: #767c85;
-    --ink-faint: #a4a9b0;
-    --accent: #3b62f6;
-    --accent-ink: #ffffff;
-    --accent-soft: #e1e8ff;
-    --accent-soft-line: #b9c8fe;
-    --shadow: 0 12px 28px -12px rgba(20, 22, 30, 0.28);
-    --radius-lg: 10px;
-    --radius-md: 7px;
-    --radius-sm: 5px;
-  }
+<div style="position: fixed; inset: 0; overflow: hidden; background: #272727; perspective: 76vw; perspective-origin: 50% 50%">
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --canvas: #17181b;
-      --chrome: #202226;
-      --chrome-raised: #26282d;
-      --line: #35383e;
-      --line-soft: #2b2e33;
-      --ink: #e7e9ec;
-      --ink-mute: #9a9fa7;
-      --ink-faint: #64686f;
-      --accent: #6f8dff;
-      --accent-ink: #10131c;
-      --accent-soft: #262d47;
-      --accent-soft-line: #3c4a7c;
-      --shadow: 0 14px 32px -14px rgba(0, 0, 0, 0.55);
-    }
-  }
+  <div id="dia-frame" style="position: absolute; left: 50%; top: 50%; width: 92vw; aspect-ratio: 4096 / 2469; transform-style: preserve-3d; will-change: transform">
+    <div id="dia-frame-inner" style="position: absolute; inset: 0; opacity: 0">
+      <img id="dia-l-master" src="assets/browser-master.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block" />
+      <img id="dia-l-split1" src="assets/split-1.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-splitlive" src="assets/split-live.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-split2" src="assets/split-2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-chat" src="assets/chat-in-action.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-nt1" src="assets/newtab-1.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-nt2" src="assets/newtab-2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <img id="dia-l-brief" src="assets/brief.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
 
-  :root[data-theme="dark"] {
-    --canvas: #17181b;
-    --chrome: #202226;
-    --chrome-raised: #26282d;
-    --line: #35383e;
-    --line-soft: #2b2e33;
-    --ink: #e7e9ec;
-    --ink-mute: #9a9fa7;
-    --ink-faint: #64686f;
-    --accent: #6f8dff;
-    --accent-ink: #10131c;
-    --accent-soft: #262d47;
-    --accent-soft-line: #3c4a7c;
-    --shadow: 0 14px 32px -14px rgba(0, 0, 0, 0.55);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--canvas);
-    color: var(--ink);
-    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-    height: 100vh;
-    overflow: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .app {
-    display: flex;
-    height: 100vh;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  /* ---------- Sidebar ---------- */
-
-  .sidebar {
-    width: 248px;
-    flex-shrink: 0;
-    background: var(--chrome);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    display: flex;
-    flex-direction: column;
-    padding: 12px 10px;
-    gap: 10px;
-    user-select: none;
-  }
-
-  .pinned-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-
-  .pinned-tab {
-    aspect-ratio: 1;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--chrome-raised);
-    border: 1px solid var(--line-soft);
-    cursor: default;
-    font-size: 15px;
-  }
-
-  .pinned-tab svg { width: 17px; height: 17px; }
-
-  .divider {
-    height: 1px;
-    background: var(--line);
-    margin: 2px 2px 0;
-  }
-
-  .section-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    padding: 2px 6px 0;
-  }
-
-  .tab-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .tab {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 7px 8px;
-    border-radius: var(--radius-md);
-    cursor: grab;
-    position: relative;
-    border: 1px solid transparent;
-    transition: background 0.12s ease, border-color 0.12s ease, gap 0.14s ease, padding 0.14s ease;
-  }
-
-  .tab:hover { background: var(--line-soft); }
-
-  .tab.active {
-    background: var(--chrome-raised);
-    border-color: var(--line);
-  }
-
-  .tab.selected {
-    background: var(--accent-soft);
-    border-color: var(--accent-soft-line);
-  }
-
-  .tab.dragging { opacity: 0.35; }
-
-  .tab-main {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    order: 1;
-    border-radius: calc(var(--radius-md) - 2px);
-    transition: background 0.14s ease, padding 0.14s ease;
-  }
-
-  .tab-drop-half {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    flex: 0;
-    width: 0;
-    min-width: 0;
-    overflow: hidden;
-    opacity: 0;
-    order: 2;
-    border-radius: calc(var(--radius-md) - 2px);
-    border: 1.5px dashed transparent;
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: flex 0.14s ease, opacity 0.1s ease;
-  }
-  .tab-drop-half svg { flex-shrink: 0; }
-  .tab-drop-label { overflow: hidden; text-overflow: ellipsis; }
-
-  .tab.drop-target {
-    padding: 4px;
-    gap: 6px;
-    background: var(--chrome-raised);
-    border-color: var(--line);
-  }
-  .tab.drop-target .tab-main {
-    flex: 1 1 0;
-    background: var(--line-soft);
-    padding: 5px 8px;
-  }
-  .tab.drop-target .tab-drop-half {
-    flex: 1 1 0;
-    width: auto;
-    opacity: 1;
-    padding: 5px 8px;
-    background: var(--accent-soft);
-    border-color: var(--accent);
-  }
-  .tab.drop-target.drop-side-left .tab-drop-half { order: 0; }
-  .tab.drop-target.drop-side-right .tab-drop-half { order: 2; }
-
-  .tab-split {
-    padding: 4px;
-    gap: 0;
-  }
-
-  .split-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 5px;
-    border-radius: calc(var(--radius-md) - 2px);
-    flex: 1;
-    min-width: 0;
-  }
-
-  .split-chip:hover { background: var(--line-soft); }
-
-  .split-chip .favicon { width: 17px; height: 17px; font-size: 9px; border-radius: 4px; }
-
-  .split-chip-name {
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .split-chip-close {
-    width: 15px;
-    height: 15px;
-    border-radius: 4px;
-    border: none;
-    background: transparent;
-    color: var(--ink-faint);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-  }
-  .split-chip-close:hover { background: var(--line); color: var(--ink); }
-  .split-chip-close svg { width: 8px; height: 8px; }
-
-  .split-divider {
-    width: 1px;
-    align-self: stretch;
-    background: var(--line);
-    margin: 2px 1px;
-    flex-shrink: 0;
-  }
-
-  .tab-check {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    border: 1.5px solid var(--ink-faint);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.12s ease, border-color 0.12s ease, background 0.12s ease;
-  }
-
-  .tab.selectable .tab-check { opacity: 1; }
-  .tab.selected .tab-check {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-  .tab.selected .tab-check svg { display: block; }
-  .tab-check svg { display: none; width: 9px; height: 9px; stroke: var(--accent-ink); }
-
-  .favicon {
-    width: 20px;
-    height: 20px;
-    border-radius: 5px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 10px;
-    font-weight: 600;
-    color: #fff;
-  }
-
-  .tab-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-  }
-
-  .hint {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 10.5px;
-    color: var(--ink-faint);
-    line-height: 1.5;
-    padding: 8px 6px 2px;
-    border-top: 1px solid var(--line);
-  }
-  .hint b { color: var(--ink-mute); }
-
-  /* ---------- Viewport ---------- */
-
-  .viewport {
-    flex: 1;
-    position: relative;
-    display: flex;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .pane {
-    flex: 1;
-    min-width: 0;
-    background: var(--chrome-raised);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .pane-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--line-soft);
-    flex-shrink: 0;
-  }
-
-  .pane-bar .favicon { width: 16px; height: 16px; font-size: 8px; border-radius: 4px; }
-
-  .pane-url {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 11px;
-    color: var(--ink-mute);
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .pane-close {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: none;
-    background: transparent;
-    color: var(--ink-faint);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .pane-close:hover { background: var(--line-soft); color: var(--ink); }
-  .pane-close svg { width: 10px; height: 10px; }
-
-  .pane-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    position: relative;
-  }
-
-  .pane-page .favicon-big {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 26px;
-    font-weight: 600;
-    color: #fff;
-  }
-
-  .pane-page .page-name {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .pane-page .page-meta {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 10.5px;
-    color: var(--ink-faint);
-    letter-spacing: 0.03em;
-  }
-
-  .page-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--line-soft) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
-    background-size: 28px 28px;
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  /* ---------- Drag ghost ---------- */
-
-  .drag-ghost {
-    position: fixed;
-    z-index: 999;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 12px 7px 8px;
-    background: var(--chrome-raised);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow);
-    font-size: 12.5px;
-    font-weight: 600;
-    transform: translate(14px, 10px) rotate(-2deg);
-    max-width: 240px;
-  }
-  .drag-ghost .favicon { width: 17px; height: 17px; font-size: 9px; flex-shrink: 0; }
-  .drag-ghost > div:last-child {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* ---------- Drop overlay ---------- */
-
-  .drop-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  .drop-half {
-    flex: 1;
-    margin: 8px;
-    border-radius: var(--radius-lg);
-    border: 2px dashed var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.1s ease, border-color 0.1s ease, background 0.1s ease;
-  }
-
-  .drop-half.armed {
-    opacity: 1;
-    border-color: var(--accent);
-    background: var(--accent-soft);
-  }
-
-  .drop-half.dim { opacity: 0.35; }
-
-  .drop-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  /* ---------- Context menu ---------- */
-
-  .ctx-menu {
-    position: fixed;
-    z-index: 200;
-    background: var(--chrome-raised);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow);
-    padding: 4px;
-    min-width: 176px;
-    display: none;
-    flex-direction: column;
-  }
-  .ctx-menu.open { display: flex; }
-
-  .ctx-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 9px;
-    border-radius: var(--radius-sm);
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--ink);
-  }
-  .ctx-item:hover { background: var(--accent-soft); color: var(--accent); }
-  .ctx-item svg { width: 13px; height: 13px; flex-shrink: 0; }
-  .ctx-item.disabled { color: var(--ink-faint); cursor: default; }
-  .ctx-item.disabled:hover { background: none; color: var(--ink-faint); }
-
-  /* ---------- Toast ---------- */
-
-  .toast {
-    position: fixed;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%) translateY(8px);
-    background: var(--ink);
-    color: var(--canvas);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 999px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    z-index: 300;
-    font-family: "IBM Plex Mono", monospace;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-</style>
-
-<div class="app" id="app">
-  <div class="sidebar" id="sidebar">
-    <div class="pinned-row">
-      <div class="pinned-tab" title="Calendar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e8804a" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <!-- The brief's full page, masked to the browser's viewport chrome and scrolled internally through
+           beat 4 so more of the brief reveals as the reader scrolls, the way a real window would. -->
+      <div id="dia-brief-view" style="position: absolute; left: 13%; top: 6.1%; width: 84.4%; height: 89.3%; overflow: hidden; background: #F3F3F1; opacity: 0">
+        <img id="dia-brief-scroll" src="assets/brief-full.png" alt="" style="position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; will-change: transform" />
       </div>
-      <div class="pinned-tab" title="Google">
-        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4c-.2 1.3-1 2.3-2.1 3v2.5h3.4c2-1.8 3.1-4.5 3.1-7.4z"/><path fill="#34A853" d="M12 22c2.8 0 5.2-.9 6.9-2.5l-3.4-2.5c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.6C4.4 19.6 7.9 22 12 22z"/><path fill="#FBBC05" d="M6.2 13.7c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.3H2.7C2 8.7 1.6 10.3 1.6 12s.4 3.3 1.1 4.7l3.5-3z"/><path fill="#EA4335" d="M12 5.8c1.5 0 2.9.5 4 1.5l3-3C17.2 2.5 14.8 1.6 12 1.6 7.9 1.6 4.4 4 2.7 7.3l3.5 2.6c.8-2.5 3.1-4.1 5.8-4.1z"/></svg>
+
+      <div id="dia-c1a" style="position: absolute; left: 1.2%; top: 2.2%; width: 12.6%; height: 11.5%; opacity: 0">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible" fill="none"><path d="M 52 6 C 26 5, 6 22, 7 48 C 8 74, 30 95, 55 94 C 80 93, 96 74, 94 47 C 92 22, 74 7, 47 8 C 38 8.5, 30 12, 23.5 18" stroke="#FF2FB0" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>
       </div>
-      <div class="pinned-tab" title="Gmail">
-        <svg viewBox="0 0 24 24"><path fill="#EA4335" d="M2 6.5v11c0 .8.7 1.5 1.5 1.5H5V8.1L12 13l7-4.9V19h1.5c.8 0 1.5-.7 1.5-1.5v-11c0-1-1.1-1.6-2-1L12 10.5 3.9 5.5c-.8-.5-1.9.1-1.9 1z"/></svg>
+
+      <div id="dia-c1b" style="position: absolute; left: 0.9%; top: 16.5%; width: 14%; height: 31%; opacity: 0">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible" fill="none"><path d="M 48 5 C 22 7, 5 24, 6 50 C 7 76, 28 96, 54 95 C 79 94, 96 75, 94 48 C 92 21, 72 6, 45 7 C 36 7.5, 28 11, 22 17" stroke="#FF2FB0" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>
       </div>
-      <div class="pinned-tab" title="Notion">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="#000"/><text x="12" y="16.5" text-anchor="middle" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#fff">N</text></svg>
+
+      <div id="dia-c3a" style="position: absolute; left: 39.1%; top: 42.4%; width: 2.4%; height: 3.4%; opacity: 0">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible" fill="none"><path d="M 52 6 C 26 5, 6 22, 7 48 C 8 74, 30 95, 55 94 C 80 93, 96 74, 94 47 C 92 22, 74 7, 47 8 C 38 8.5, 30 12, 23.5 18" stroke="#FF2FB0" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>
+      </div>
+
+      <div id="dia-c3b" style="position: absolute; left: 38.1%; top: 45.5%; width: 22.3%; height: 3.7%; opacity: 0">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible" fill="none"><path d="M 48 5 C 22 7, 5 24, 6 50 C 7 76, 28 96, 54 95 C 79 94, 96 75, 94 48 C 92 21, 72 6, 45 7 C 36 7.5, 28 11, 22 17" stroke="#FF2FB0" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>
+      </div>
+    </div>
+  </div>
+
+  <div id="dia-frame-scrim" style="position: absolute; left: 0; right: 0; bottom: 0; height: 34vh; pointer-events: none; opacity: 0; background: linear-gradient(180deg, rgba(39,39,39,0) 0%, rgba(39,39,39,0.04) 18%, rgba(39,39,39,0.14) 33%, rgba(39,39,39,0.3) 46%, rgba(39,39,39,0.5) 58%, rgba(39,39,39,0.7) 70%, rgba(39,39,39,0.86) 80%, rgba(39,39,39,0.96) 90%, #272727 100%)"></div>
+
+  <div id="dia-veil" style="position: absolute; inset: 0; opacity: 0; pointer-events: none; background: linear-gradient(90deg, #272727 0%, #272727 37.8%, rgba(39,39,39,0.92) 39.6%, rgba(39,39,39,0.79) 41.2%, rgba(39,39,39,0.61) 42.8%, rgba(39,39,39,0.41) 44.3%, rgba(39,39,39,0.23) 45.6%, rgba(39,39,39,0.1) 46.6%, rgba(39,39,39,0.03) 47.1%, rgba(39,39,39,0) 47.6%)"></div>
+
+
+  <div style="position: absolute; left: 0; top: 0; right: 0; height: 130px; pointer-events: none; background: linear-gradient(180deg, rgba(24,25,33,0.9) 0%, rgba(24,25,33,0.62) 40%, rgba(24,25,33,0))"></div>
+
+  <div id="dia-copy-title" style="position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%); width: min(84vw, 980px); text-align: center">
+    <h1 id="dia-title-h1" style="margin: 0; font-family: Figtree, sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.1; letter-spacing: -0.025em; color: #D9D9DD; text-wrap: balance; opacity: 0">
+      <span style="display: block; color: #F5F5F7; font-size: 1.5em; line-height: 1.02; letter-spacing: -0.03em">A <span style="color: #FFC700">bold</span> new browser.</span>
+      <span style="display: block; margin-top: 0.5em; font-size: 0.56em; font-weight: 400; line-height: 1.24; letter-spacing: -0.005em; color: #A5A5AC">What works, what's missing, and why it matters.</span>
+    </h1>
+  </div>
+
+  <div id="dia-beats" style="position: absolute; left: 6.5vw; top: 50%; transform: translateY(-50%); width: min(30vw, 440px); pointer-events: none">
+
+    <div id="dia-b1" style="opacity: 0">
+      <div style="display: flex; flex-direction: column; gap: 26px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 22px; height: 1px; background: #FFC700"></span>
+          <span style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #FFC700; font-weight: 600">01 &nbsp;Tab bar</span>
+        </div>
+        <div style="position: relative; min-height: 320px">
+          <div id="dia-b1-s1" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">The tab bar I never knew I needed.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Vertical isn't new. Chrome and Safari have both tried it. Dia just saw the potential and did it right.</p>
+          </div>
+          <div id="dia-b1-s2" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">My favorites, pinned at the top.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">They read like app icons here, not like squeezed-down favicons fighting for space along the top of a window.</p>
+          </div>
+          <div id="dia-b1-s3" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">Doesn't matter how many tabs I have open. I can still read them.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">A name, not a favicon you have to squint at and guess. Tabs I stop using auto-clear after a set amount of time, so the list never turns into the graveyard my horizontal tab bar always became. Nothing revolutionary. Just decisions made in the right order.</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="divider"></div>
-    <div class="section-label">Tabs</div>
-    <div class="tab-list" id="tabList"></div>
+    <div id="dia-b2" style="position: absolute; inset: 0; opacity: 0">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 22px; height: 1px; background: #FFC700"></span>
+          <span style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #FFC700; font-weight: 600">02 &nbsp;Split view</span>
+        </div>
+        <div style="position: relative; min-height: 320px">
+          <div id="dia-b2-s1" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">Reference and build, side by side.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Two tabs side by side, three when I need them, is how I compare, reference, and keep a thought in view while I work on another.</p>
+          </div>
+          <div id="dia-b2-s2" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">Getting there is the hard part.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Getting there is trickier than it needs to be. Dia floats an overlay of empty drop zones on top of the current page and asks me to guess what happens next.</p>
+          </div>
+          <div id="dia-b2-s3" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">There's a better way in.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">There's a better path: drag a tab into the viewport and let the screen split so I can see where the drop is landing, or drag one tab onto another to merge them. Instead I take the safe route. Select two tabs, right-click, merge. It's the path I trust.</p>
+            <a id="dia-b2-cta" href="./split-view/" target="_blank" rel="noopener" style="align-self: flex-start; margin-top: 4px; display: inline-flex; align-items: center; gap: 9px; padding: 11px 20px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; font-size: clamp(13px, 1vw, 15px); font-weight: 600; letter-spacing: 0.01em; color: #FFC700; text-decoration: none; pointer-events: none; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Try the prototype<span style="font-size: 1.1em; line-height: 1">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <div class="hint">
-      <b>drag</b> a tab into the page &rarr; split &nbsp;·&nbsp;
-      <b>&#8984;/ctrl</b>-click to multi-select &rarr; right-click &rarr; split
+    <div id="dia-b3" style="position: absolute; inset: 0; opacity: 0">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 22px; height: 1px; background: #FFC700"></span>
+          <span style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #FFC700; font-weight: 600">03 &nbsp;AI chat</span>
+        </div>
+        <div style="position: relative; min-height: 360px">
+          <div id="dia-b3-p1" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">I was skeptical of Dia's AI chat... until it won me over.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Dia's headline feature is AI. That's not why I started using it. I saw little value in the chat feature at first, I hadn't had my aha moment yet. That came when I was buying a monitor. I had two spec pages open in split view, and instead of reading both, I asked chat to compare them. Ten seconds later I had my answer.</p>
+          </div>
+          <div id="dia-b3-p2" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">I can ask like I'd ask a person.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Now I use it for smaller things too. Old browsers make me search for the word "parking." Dia lets me ask if there's parking. That's a smaller gap than it sounds, and it changes how I move through a page.</p>
+          </div>
+          <div id="dia-b3-p3" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">However, one thing still trips me up...</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">The action depends on how I phrase what I type. Write a standard query, like "Dell UltraSharp vs. Asus ProArt monitor," and it runs as a normal Google search.</p>
+          </div>
+          <div id="dia-b3-p4" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">Change the phrasing, change the action.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Phrase it like a question instead, and it routes to chat. It's a smart convention. But I've ended up in chat when all I wanted was a plain search. I don't always trust the AI enough to want it in front by default.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dia-b4" style="position: absolute; inset: 0; opacity: 0">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 22px; height: 1px; background: #FFC700"></span>
+          <span style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #FFC700; font-weight: 600">04 &nbsp;Morning brief</span>
+        </div>
+        <div style="position: relative; min-height: 360px">
+          <div id="dia-b4-p1" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">Like someone already read my inbox for me.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Dia connects to Teams, Notion, Linear, email, GitHub, and my calendar. Every morning it shows me what actually needs my attention, not everything that happened overnight. A message someone's waiting on. A PR sitting approved. A meeting in an hour with a brief already drafted so I'm not walking in cold. The stuff that would've slipped through the cracks if I'd had to hunt for it.</p>
+          </div>
+          <div id="dia-b4-p2" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; opacity: 0">
+            <h2 style="margin: 0; font-weight: 800; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.14; letter-spacing: -0.02em; color: #D9D9DD">It knows my day, but it doesn't know me yet.</h2>
+            <p style="margin: 0; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.68; color: #9E9EA6; text-wrap: pretty">Out of the box, it assumes it has me figured out. I want the opposite. A brief that learns what matters to me, what to skip, what to surface louder. An AI feature that can't be shaped is still a static feature. That's the difference between one that runs and one that grows.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="dia-copy-close" style="position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%); width: min(94vw, 1200px); text-align: center; opacity: 0">
+    <h2 style="margin: 0; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
+      <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">None of this is new.</span>
+      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers have done this before.</span>
+      <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.06em; letter-spacing: -0.028em; white-space: nowrap; opacity: 0">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
+    </h2>
+  </div>
+
+  <!-- Opening logo animation and the piece's persistent Dia mark are the same element: it plays
+       large at screen center, pauses, then docks into this pill at the top of the frame. -->
+  <div id="dia-brand" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 50%; will-change: transform; pointer-events: none">
+    <div id="dia-brand-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0)">
+      <img id="dia-brand-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block; opacity: 0" />
+      <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block; opacity: 0; clip-path: inset(-8% 100% -8% -2%)" />
     </div>
   </div>
 
-  <div class="viewport" id="viewport"></div>
+  <div id="dia-badge" style="position: absolute; right: 40px; bottom: 34px; display: flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0">
+    <img src="assets/bkmn-logo.png" alt="bkmn" style="height: 19px; display: block" />
+    <span style="font-weight: 400; font-size: 15px; color: #CFCFD5">critique</span>
+  </div>
+
+  <div id="dia-hint" style="position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%)">
+    <div id="dia-hint-label" style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #6E6E76; opacity: 0">scroll</div>
+  </div>
+
 </div>
 
-<div class="ctx-menu" id="ctxMenu">
-  <div class="ctx-item" id="ctxSplit">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg>
-    Open as split
-  </div>
-  <div class="ctx-item disabled" id="ctxSplitHint">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
-    Open (select 2 tabs)
-  </div>
-  <div class="ctx-item" id="ctxSeparate">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></svg>
-    Separate tabs
-  </div>
-</div>
+<div id="dia-spacer" style="height: 3400vh; pointer-events: none"></div>
+]]>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  componentDidMount() {
+    this._n = {};
 
-<div class="toast" id="toast"></div>
+    // Camera keyframes: [at, rotateX, scale, focalX, focalY, anchorX, anchorY]
+    this.KF = [
+      [0.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
+      [2.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
+      [3.2,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
+      [4.6,   0, 1.54, 0.078, 0.255, 0.500, 0.50],
+      [5.8,   0, 2.20, 0.078, 0.080, 0.537, 0.40],
+      [7.0,   0, 2.24, 0.078, 0.080, 0.537, 0.40],
+      [8.2,   0, 1.80, 0.078, 0.330, 0.520, 0.61],
+      [9.0,   0, 1.84, 0.078, 0.330, 0.520, 0.61],
+      [10.4,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
+      [11.5,  0, 0.65, 0.500, 0.500, 0.695, 0.50],
+      [12.9,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
+      [14.0,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
+      [15.8,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
+      [17.4,  0, 1.66, 0.885, 0.400, 0.780, 0.50],
+      [19.2,  0, 1.70, 0.885, 0.400, 0.780, 0.50],
+      [20.6,  0, 1.45, 0.554, 0.476, 0.695, 0.48],
+      [22.2,  0, 1.52, 0.554, 0.476, 0.695, 0.48],
+      [23.2,  0, 0.66, 0.500, 0.400, 0.690, 0.50],
+      [24.4,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
+      [25.1,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
+      [26.2,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [26.9,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [28.2, 22, 1.00, 0.500, 0.000, 0.50, 0.50],
+      [29.0, 22, 1.00, 0.500, 0.000, 0.50, 0.50]
+    ];
+    this.TOTAL = 29.0;
 
-<script>
-(function () {
-  "use strict";
+    // Scroll is locked until the opening logo sequence has docked and the title has landed.
+    const html = document.documentElement;
+    this._prevOverflow = html.style.overflow;
+    html.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
+    this.introSetup();
+    this._unlock = setTimeout(() => this.startBody(), 9000);
 
-  var TABS = [
-    { id: "t1", name: "Figma — Split View Spec", color: "#8b5cf6", letter: "F", url: "figma.com/file/split-view" },
-    { id: "t2", name: "GitHub — open PRs", color: "#24292f", letter: "G", url: "github.com/pulls" },
-    { id: "t3", name: "Linear — Sprint 24", color: "#5e6ad2", letter: "L", url: "linear.app/sprint-24" },
-    { id: "t4", name: "Vercel — preview build", color: "#0f0f10", letter: "V", url: "vercel.com/deployments" },
-    { id: "t5", name: "Stripe — Dashboard", color: "#635bff", letter: "S", url: "dashboard.stripe.com" },
-    { id: "t6", name: "Amplitude — Retention", color: "#0071e3", letter: "A", url: "amplitude.com/retention" }
-  ];
+    // Refinement helper: window.__diaSeek(u) parks the timeline at a beat unit (0–23); null resumes scroll.
+    window.__diaSeek = (u) => { this._seek = u; this._last = null; };
 
-  var byId = {};
-  TABS.forEach(function (t) { byId[t.id] = t; });
-
-  var state = {
-    activeId: "t1",
-    selected: new Set(),
-    splitGroup: null,      // [leftId, rightId] — persists as a unit until separated
-    viewMode: "single",    // "single" | "split" — which is currently shown in the viewport
-    dragTabId: null         // id of the tab currently being pointer-dragged, if any
-  };
-
-  var sidebarEl = document.getElementById("sidebar");
-  var tabListEl = document.getElementById("tabList");
-  var viewportEl = document.getElementById("viewport");
-  var ctxMenu = document.getElementById("ctxMenu");
-  var ctxSplitItem = document.getElementById("ctxSplit");
-  var ctxSplitHint = document.getElementById("ctxSplitHint");
-  var ctxSeparateItem = document.getElementById("ctxSeparate");
-  var toastEl = document.getElementById("toast");
-  var ctxMenuMode = "select"; // "select" | "split-row"
-
-  function showToast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 1600);
-  }
-
-  function faviconEl(tab, cls) {
-    var d = document.createElement("div");
-    d.className = "favicon" + (cls ? " " + cls : "");
-    d.style.background = tab.color;
-    d.textContent = tab.letter;
-    return d;
-  }
-
-  // ---------------- Sidebar tab list ----------------
-
-  function renderTabList() {
-    tabListEl.innerHTML = "";
-
-    var mergedAtIdx = null;
-    if (state.splitGroup) {
-      var i0 = TABS.findIndex(function (t) { return t.id === state.splitGroup[0]; });
-      var i1 = TABS.findIndex(function (t) { return t.id === state.splitGroup[1]; });
-      mergedAtIdx = Math.min(i0, i1);
-    }
-
-    TABS.forEach(function (tab, idx) {
-      if (state.splitGroup && state.splitGroup.indexOf(tab.id) !== -1) {
-        if (idx !== mergedAtIdx) return; // the other half renders inside the merged row
-        tabListEl.appendChild(buildSplitRow(state.splitGroup[0], state.splitGroup[1]));
-        return;
-      }
-      tabListEl.appendChild(buildTabRow(tab));
-    });
-  }
-
-  function buildSplitRow(idA, idB) {
-    var row = document.createElement("div");
-    row.className = "tab tab-split";
-    if (state.viewMode === "split") row.classList.add("active");
-
-    row.appendChild(buildSplitChip(idA, idB));
-    var divider = document.createElement("div");
-    divider.className = "split-divider";
-    row.appendChild(divider);
-    row.appendChild(buildSplitChip(idB, idA));
-
-    row.addEventListener("click", function () {
-      state.viewMode = "split";
-      renderAll();
-    });
-
-    row.addEventListener("contextmenu", function (e) {
+    // Optional keyboard walkthrough: one sub-moment per press, eased at a presentation pace.
+    this.STOPS = [0, 4.3, 6.6, 8.7, 11.2, 13.0, 14.6, 16.6, 18.5, 20.95, 22.6, 24.2, 26.4, 29.0];
+    this._stop = 0;
+    this.onKey = (e) => {
+      const fwd = ['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Spacebar'].indexOf(e.key) > -1;
+      const back = ['ArrowLeft', 'ArrowUp', 'PageUp'].indexOf(e.key) > -1;
+      if (!fwd && !back) return;
+      if (e.__dia) return;
+      e.__dia = true;
       e.preventDefault();
-      openCtxMenu(e.clientX, e.clientY, "split-row");
+      if (!this.introDone) { this.skipIntro(); return; }
+      const range = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      // Re-derive the index from live scroll so a manual scroll never desyncs the walkthrough.
+      const cur = (window.scrollY / range) * this.TOTAL;
+      let i = 0;
+      for (let k = 0; k < this.STOPS.length; k++) if (this.STOPS[k] < cur - 0.3) i = k + 1;
+      i = Math.max(0, Math.min(this.STOPS.length - 1, fwd ? i + 1 : i - 1));
+      this._stop = i;
+      this.glide((this.STOPS[i] / this.TOTAL) * range);
+    };
+    window.addEventListener('keydown', this.onKey);
+    document.addEventListener('keydown', this.onKey);
+    // In an embedded preview the keystrokes land on the host until this document holds focus,
+    // so claim it on mount and on any click into the piece.
+    const claim = () => { try { window.focus(); document.body.focus(); } catch (e) {} };
+    document.body.setAttribute('tabindex', '-1');
+    document.body.style.outline = 'none';
+    this.onDown = () => { claim(); if (!this.introDone) this.skipIntro(); };
+    document.addEventListener('pointerdown', this.onDown);
+    claim();
+
+    this.tick = this.tick.bind(this);
+    this._raf = requestAnimationFrame(this.tick);
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    cancelAnimationFrame(this._glide);
+    clearTimeout(this._unlock);
+    (this._it || []).forEach(clearTimeout);
+    window.removeEventListener('resize', this.introFit);
+    window.removeEventListener('keydown', this.onKey);
+    document.removeEventListener('keydown', this.onKey);
+    document.removeEventListener('pointerdown', this.onDown);
+    document.documentElement.style.overflow = '';
+  }
+
+  /* ---- Opening logo sequence ------------------------------------------------
+     The brand pill is the animated element. Geometry is read from layout, so the
+     mark's centre can be pinned to the middle of the viewport while it scales,
+     then the whole lockup rides up into the pill's docked position. */
+  MARK_INTRO = 146;
+
+  introSetup() {
+    this.brand = document.getElementById('dia-brand');
+    this.pill = document.getElementById('dia-brand-pill');
+    this.bMark = document.getElementById('dia-brand-mark');
+    this.bWord = document.getElementById('dia-brand-word');
+    if (!this.brand) { this.startBody(); return; }
+    this._it = [];
+    this.introFit = () => {
+      const m = this.bMark, p = this.pill;
+      this.zBase = this.MARK_INTRO / (m.offsetWidth || 19);
+      this.dx = (m.offsetLeft + m.offsetWidth / 2) - p.offsetWidth / 2;
+      this.ty = window.innerHeight / 2 - (26 + this.brand.offsetHeight / 2);
+      if (!this.introDone) this.applyIntro(this._istep || 0, true);
+    };
+    window.addEventListener('resize', this.introFit);
+    this.introFit();
+    // The wordmark contributes to the lockup's width, so the mark's offset from the pill's centre
+    // is only correct once both images have decoded — re-measure on each load.
+    [this.bMark, this.bWord].forEach((im) => {
+      if (!im.complete) im.addEventListener('load', this.introFit);
     });
-
-    return row;
+    this.applyIntro(0, true);
+    const t = (ms, fn) => this._it.push(setTimeout(fn, ms));
+    t(1050, () => { this.introFit(); this.bMark.style.transition = 'opacity .55s ease-out'; this.bMark.style.opacity = 1; this.applyIntro(1); });
+    t(1830, () => this.applyIntro(2));
+    t(2190, () => this.applyIntro(3));
+    t(2830, () => this.applyIntro(4));
+    t(4900, () => this.dock());
   }
 
-  function unmergeSplit() {
-    if (!state.splitGroup) return;
-    state.activeId = state.splitGroup[0];
-    state.splitGroup = null;
-    state.viewMode = "single";
-    renderAll();
-    showToast("Tabs separated");
-  }
-
-  function buildSplitChip(id, otherId) {
-    var tab = byId[id];
-    var chip = document.createElement("div");
-    chip.className = "split-chip";
-    chip.appendChild(faviconEl(tab));
-
-    var name = document.createElement("div");
-    name.className = "split-chip-name";
-    name.textContent = tab.name;
-    chip.appendChild(name);
-
-    var close = document.createElement("button");
-    close.className = "split-chip-close";
-    close.title = "Remove from split";
-    close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>';
-    close.addEventListener("click", function (e) {
-      e.stopPropagation();
-      separateFromSplit(otherId);
-    });
-    chip.appendChild(close);
-
-    return chip;
-  }
-
-  function separateFromSplit(keepId) {
-    state.splitGroup = null;
-    state.viewMode = "single";
-    state.activeId = keepId;
-    renderAll();
-  }
-
-  function buildTabRow(tab) {
-      var row = document.createElement("div");
-      row.className = "tab";
-      row.dataset.id = tab.id;
-
-      if (tab.id === state.activeId && state.viewMode === "single") row.classList.add("active");
-      if (state.selected.size > 0) row.classList.add("selectable");
-      if (state.selected.has(tab.id)) row.classList.add("selected");
-
-      var check = document.createElement("div");
-      check.className = "tab-check";
-      check.innerHTML = '<svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round"><path d="M1.5 5.2l2.3 2.3 4.7-5"/></svg>';
-      check.addEventListener("click", function (e) {
-        e.stopPropagation();
-        toggleSelect(tab.id);
-      });
-
-      var fav = faviconEl(tab);
-      var name = document.createElement("div");
-      name.className = "tab-name";
-      name.textContent = tab.name;
-
-      var main = document.createElement("div");
-      main.className = "tab-main";
-      main.appendChild(check);
-      main.appendChild(fav);
-      main.appendChild(name);
-
-      var dropHalf = document.createElement("div");
-      dropHalf.className = "tab-drop-half";
-      dropHalf.innerHTML =
-        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
-        '<span class="tab-drop-label">Add split</span>';
-
-      row.appendChild(main);
-      row.appendChild(dropHalf);
-
-      row.addEventListener("click", function (e) {
-        if (state.selected.size > 0) {
-          toggleSelect(tab.id);
-          return;
-        }
-        state.activeId = tab.id;
-        state.viewMode = "single";
-        renderAll();
-      });
-
-      row.addEventListener("contextmenu", function (e) {
-        e.preventDefault();
-        if (!state.selected.has(tab.id) && state.selected.size < 2) {
-          state.selected.add(tab.id);
-          renderTabList();
-        }
-        openCtxMenu(e.clientX, e.clientY);
-      });
-
-      row.addEventListener("mousedown", function (e) {
-        if (e.button !== 0 || e.metaKey || e.ctrlKey) return;
-        if (e.target.closest(".tab-check")) return;
-        beginPotentialDrag(e, tab.id, row);
-      });
-
-      return row;
-  }
-
-  function toggleSelect(id) {
-    if (state.selected.has(id)) {
-      state.selected.delete(id);
-    } else {
-      if (state.selected.size >= 2) {
-        var first = state.selected.values().next().value;
-        state.selected.delete(first);
-      }
-      state.selected.add(id);
-    }
-    renderTabList();
-  }
-
-  document.addEventListener("keydown", function (e) {
-    if ((e.metaKey || e.ctrlKey) && !e.repeat) {
-      sidebarEl.dataset.multiHint = "1";
-    }
-  });
-
-  sidebarEl.addEventListener("click", function (e) {
-    var onTab = e.target.closest(".tab");
-    if (!onTab && !e.metaKey && !e.ctrlKey) {
-      state.selected.clear();
-      renderTabList();
-    }
-  });
-
-  document.addEventListener("mousedown", function (e) {
-    if (!e.target.closest(".tab") && (e.metaKey || e.ctrlKey)) return;
-  });
-
-  // cmd/ctrl+click support directly on the row (in addition to checkbox)
-  tabListEl.addEventListener("mousedown", function (e) {
-    var row = e.target.closest(".tab");
-    if (!row) return;
-    if (e.metaKey || e.ctrlKey) {
-      e.preventDefault();
-      toggleSelect(row.dataset.id);
-    }
-  });
-
-  // ---------------- Viewport / panes ----------------
-
-  function renderViewport() {
-    viewportEl.innerHTML = "";
-
-    if (state.viewMode !== "split" || !state.splitGroup) {
-      viewportEl.appendChild(makePane(byId[state.activeId], false));
-    } else {
-      viewportEl.appendChild(makePane(byId[state.splitGroup[0]], true, state.splitGroup[1]));
-      viewportEl.appendChild(makePane(byId[state.splitGroup[1]], true, state.splitGroup[0]));
-    }
-
-    // drop overlay only in single-pane mode, while dragging
-    if (state.viewMode !== "split") {
-      var overlay = document.createElement("div");
-      overlay.className = "drop-overlay";
-      overlay.id = "dropOverlay";
-
-      var leftHalf = document.createElement("div");
-      leftHalf.className = "drop-half";
-      leftHalf.id = "dropLeft";
-      leftHalf.innerHTML = '<div class="drop-label">' + arrowSvg("left") + "Drop left</div>";
-
-      var rightHalf = document.createElement("div");
-      rightHalf.className = "drop-half";
-      rightHalf.id = "dropRight";
-      rightHalf.innerHTML = '<div class="drop-label">Drop right' + arrowSvg("right") + "</div>";
-
-      overlay.appendChild(leftHalf);
-      overlay.appendChild(rightHalf);
-      viewportEl.appendChild(overlay);
+  applyIntro(step, immediate) {
+    this._istep = step;
+    const z = step >= 3 ? 1 : step >= 2 ? 0.92 : step >= 1 ? 1.85 : 1.58;
+    const Z = this.zBase * z;
+    const off = step >= 4 ? 0 : -this.dx * Z;
+    const dur = step >= 4 ? '1.05s' : step === 3 ? '.62s' : step === 2 ? '.36s' : '.62s';
+    const ease = step < 2 ? 'cubic-bezier(.25,.62,.3,1)'
+      : step === 2 ? 'cubic-bezier(.7,.02,.95,.42)'
+      : step === 3 ? 'cubic-bezier(.18,1.68,.5,1)' : 'cubic-bezier(.22,1,.36,1)';
+    this.brand.style.transition = immediate ? 'none' : 'transform ' + dur + ' ' + ease;
+    this.brand.style.transform = 'translate(-50%,' + this.ty.toFixed(1) + 'px) translateX(' +
+      off.toFixed(1) + 'px) scale(' + Z.toFixed(4) + ')';
+    if (step >= 4) {
+      this.bWord.style.transition = 'clip-path 1s cubic-bezier(.22,1,.36,1), opacity .7s ease-out';
+      this.bWord.style.clipPath = 'inset(-8% -4% -8% -2%)';
+      this.bWord.style.opacity = 1;
     }
   }
 
-  function arrowSvg(dir) {
-    var d = dir === "left" ? "M12 19l-7-7 7-7M5 12h14" : "M12 5l7 7-7 7M19 12H5";
-    return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
+  dock() {
+    if (this._docking) return;
+    this._docking = true;
+    this.brand.style.transition = 'transform 1.2s cubic-bezier(.3,.9,.25,1)';
+    this.brand.style.transform = 'translate(-50%,0px) translateX(0px) scale(1)';
+    this.pill.style.transition = 'background 900ms ease-out';
+    this.pill.style.background = 'rgba(39,39,39,0.3)';
+    this.pill.style.backdropFilter = 'blur(14px)';
+    this.pill.style.webkitBackdropFilter = 'blur(14px)';
+    this._it.push(setTimeout(() => this.startBody(), 780));
   }
 
-  function makePane(tab, closable, otherId) {
-    var pane = document.createElement("div");
-    pane.className = "pane";
+  // The rest of the opening — title, browser frame, credit, scroll hint — waits for the dock.
+  startBody() {
+    if (this._bodyStarted) return;
+    this._bodyStarted = true;
+    this.introDone = true;
+    clearTimeout(this._unlock);
+    const A = (id, anim) => { const el = document.getElementById(id); if (el) el.style.animation = anim; };
+    A('dia-title-h1', 'diaFadeUp 1s cubic-bezier(0.16,0.84,0.24,1) 0s forwards');
+    A('dia-frame-inner', 'diaRise 1.1s cubic-bezier(0.16,0.84,0.24,1) 0.35s forwards');
+    A('dia-badge', 'diaFadeIn 0.9s ease-out 1.2s forwards');
+    A('dia-hint-label', 'diaFadeIn 1s ease-out 1.7s forwards');
+    document.documentElement.style.overflow = this._prevOverflow || '';
+  }
 
-    var bar = document.createElement("div");
-    bar.className = "pane-bar";
-    bar.appendChild(faviconEl(tab));
-    var url = document.createElement("div");
-    url.className = "pane-url";
-    url.textContent = tab.url;
-    bar.appendChild(url);
+  skipIntro() {
+    (this._it || []).forEach(clearTimeout);
+    if (!this._docking) { this.applyIntro(4); this.dock(); }
+    else this.startBody();
+  }
 
-    if (closable) {
-      var close = document.createElement("button");
-      close.className = "pane-close";
-      close.title = "Remove from split";
-      close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>';
-      close.addEventListener("click", function () {
-        separateFromSplit(otherId);
-      });
-      bar.appendChild(close);
+  // Eased scroll to a target offset — slow enough to read as a camera move, not a jump.
+  glide(to) {
+    cancelAnimationFrame(this._glide);
+    const from = window.scrollY;
+    const dist = to - from;
+    if (Math.abs(dist) < 2) return;
+    const dur = Math.min(3200, Math.max(1400, Math.abs(dist) * 1.15));
+    const t0 = performance.now();
+    const step = () => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
+      const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      window.scrollTo(0, from + dist * e);
+      if (p < 1) this._glide = requestAnimationFrame(step);
+    };
+    this._glide = requestAnimationFrame(step);
+  }
+
+  // smoothstep ramp
+  s(u, a, b) {
+    if (u <= a) return 0;
+    if (u >= b) return 1;
+    const x = (u - a) / (b - a);
+    return x * x * (3 - 2 * x);
+  }
+
+  // visible between [i0,i1] and [o0,o1]
+  win(u, i0, i1, o0, o1) { return this.s(u, i0, i1) * (1 - this.s(u, o0, o1)); }
+
+  cam(u) {
+    const K = this.KF;
+    let i = 0;
+    while (i < K.length - 2 && u > K[i + 1][0]) i++;
+    const a = K[i], b = K[i + 1];
+    const t = this.s(u, a[0], b[0]);
+    const v = [];
+    for (let j = 1; j < a.length; j++) v.push(a[j] + (b[j] - a[j]) * t);
+    return { rx: v[0], sc: v[1], fx: v[2], fy: v[3], ax: v[4], ay: v[5] };
+  }
+
+  tick() {
+    this._raf = requestAnimationFrame(this.tick);
+    const doc = document.documentElement;
+    const range = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const u = (this._seek != null && this._seek !== undefined)
+      ? this._seek
+      : Math.min(1, Math.max(0, window.scrollY / range)) * this.TOTAL;
+    if (u === this._last) return;
+    this._last = u;
+
+    const frame = this.frame && this.frame.isConnected ? this.frame : (this.frame = document.getElementById('dia-frame'));
+    if (!frame) return;
+    const c = this.cam(u);
+    const W = frame.offsetWidth, H = frame.offsetHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const tx = (c.ax - 0.5) * vw - (c.fx - 0.5) * W * c.sc;
+    const ty = (c.ay - 0.5) * vh - (c.fy - 0.5) * H * c.sc * Math.cos(c.rx * Math.PI / 180);
+    frame.style.transform =
+      'translate(-50%,-50%) translate3d(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px,0) scale(' +
+      c.sc.toFixed(4) + ') rotateX(' + c.rx.toFixed(2) + 'deg)';
+
+    const S = (a, b) => this.s(u, a, b), win = (a, b, cc, d) => this.win(u, a, b, cc, d);
+    // Null-safe setter: re-queries a missing node so one absent element can't kill the loop.
+    const set = (id, v) => {
+      let el = this._n[id];
+      if (!el || !el.isConnected) { el = document.getElementById(id); this._n[id] = el; }
+      if (el) el.style.opacity = v;
+    };
+
+    set('dia-l-master', Math.min(1, (1 - S(8.9, 9.6)) + S(27.0, 27.6)));
+    set('dia-l-splitlive', win(8.9, 9.6, 12.3, 12.9));
+    set('dia-l-split1', win(12.3, 12.9, 13.8, 14.4));
+    set('dia-l-split2', win(13.8, 14.4, 15.2, 15.8));
+    set('dia-l-chat', win(15.2, 15.8, 19.4, 20.0));
+    set('dia-l-nt1', win(19.4, 20.0, 21.2, 21.8));
+    set('dia-l-nt2', win(21.2, 21.8, 22.6, 23.2));
+    set('dia-l-brief', win(22.6, 23.2, 27.0, 27.6));
+    set('dia-brief-view', win(22.9, 23.5, 27.0, 27.6));
+
+    // The brief page scrolls inside its mask once 4A has settled — the reveal is the page moving, not the camera.
+    let bs = this._n['dia-brief-scroll'];
+    if (!bs || !bs.isConnected) bs = this._n['dia-brief-scroll'] = document.getElementById('dia-brief-scroll');
+    if (bs && bs.parentElement) {
+      const travel = Math.max(0, bs.offsetHeight - bs.parentElement.offsetHeight);
+      // Sealed with the page's own ground so no gap can ever reveal the static cropped layer beneath.
+      bs.style.transform = 'translateY(' + (-travel * 0.82 * S(24.8, 26.9)).toFixed(1) + 'px)';
     }
 
-    var page = document.createElement("div");
-    page.className = "pane-page";
-    var grid = document.createElement("div");
-    grid.className = "page-grid";
-    var favBig = document.createElement("div");
-    favBig.className = "favicon-big";
-    favBig.style.background = tab.color;
-    favBig.textContent = tab.letter;
-    var nameEl = document.createElement("div");
-    nameEl.className = "page-name";
-    nameEl.textContent = tab.name;
-    var meta = document.createElement("div");
-    meta.className = "page-meta";
-    meta.textContent = "wireframe placeholder · " + tab.url;
+    // Magenta annotation circles: one at a time, timed to the detail the copy names.
+    set('dia-c1a', win(5.7, 6.2, 7.1, 7.6));
+    set('dia-c1b', win(7.8, 8.4, 9.0, 9.4));
+    set('dia-c3a', win(20.2, 20.7, 21.2, 21.7));
+    set('dia-c3b', win(21.9, 22.4, 22.8, 23.2));
 
-    page.appendChild(grid);
-    page.appendChild(favBig);
-    page.appendChild(nameEl);
-    page.appendChild(meta);
+    // Bottom vignette only while the frame is in its tilted title/close pose.
+    set('dia-frame-scrim', Math.max(1 - S(1.6, 3.0), S(26.8, 27.8)));
 
-    pane.appendChild(bar);
-    pane.appendChild(page);
-    return pane;
+    set('dia-hint', u > 0.15 ? 0 : '');
+    set('dia-copy-title', u < 0.05 ? '' : (1 - S(2.2, 2.9)));
+    // Beats 3 and 4 only: copy sits on solid ground through the column, then blends into the screenshot.
+    // The ramp is fully clear by 47.5% — ahead of every annotated detail (modal rows ~48%, 4B's line
+    // items ~48%, the chat panel 62%+) so the fade never falls on UI the copy is pointing at.
+    set('dia-veil', win(15.4, 16.2, 27.0, 27.8));
+
+    set('dia-b1', win(2.9, 3.5, 8.9, 9.4));
+    set('dia-b1-s1', win(3.1, 3.7, 4.9, 5.4));
+    set('dia-b1-s2', win(5.3, 5.9, 7.0, 7.5));
+    set('dia-b1-s3', win(7.4, 8.0, 8.9, 9.4));
+
+    // Beat 2 holds on the pulled-back frame (9.0-10.4 zoom-out, then a beat of air) before 2.1 arrives.
+    set('dia-b2', win(10.2, 10.8, 15.2, 15.8));
+    set('dia-b2-s1', win(10.6, 11.2, 12.1, 12.6));
+    set('dia-b2-s2', win(12.5, 13.0, 13.6, 14.1));
+    const s3 = win(14.0, 14.5, 15.2, 15.8);
+    set('dia-b2-s3', s3);
+    // Opacity alone still hit-tests, so the CTA's clickability is gated on 2.3 being on screen.
+    let cta = this._n['dia-b2-cta'];
+    if (!cta || !cta.isConnected) cta = this._n['dia-b2-cta'] = document.getElementById('dia-b2-cta');
+    if (cta) cta.style.pointerEvents = s3 > 0.5 ? 'auto' : 'none';
+
+    set('dia-b3', win(15.7, 16.3, 22.6, 23.2));
+    set('dia-b3-p1', win(15.9, 16.5, 17.6, 18.1));
+    set('dia-b3-p2', win(18.0, 18.5, 19.3, 19.8));
+    set('dia-b3-p3', win(19.7, 20.3, 21.2, 21.7));
+    set('dia-b3-p4', win(21.6, 22.1, 22.6, 23.2));
+
+    set('dia-b4', win(23.3, 23.9, 27.2, 27.8));
+    set('dia-b4-p1', win(23.5, 24.1, 25.4, 25.9));
+    set('dia-b4-p2', win(25.8, 26.4, 27.2, 27.8));
+
+    set('dia-copy-close', S(27.9, 28.4));
+    set('dia-close-l1', S(27.9, 28.4));
+    set('dia-close-l2', S(28.2, 28.7));
+    set('dia-close-l3', S(28.5, 29.0));
   }
 
-  function clearDropOverlay() {
-    var l = document.getElementById("dropLeft");
-    var r = document.getElementById("dropRight");
-    if (l) { l.classList.remove("armed", "dim"); }
-    if (r) { r.classList.remove("armed", "dim"); }
-  }
-
-  // ---------------- Custom pointer-drag (cursor-following ghost) ----------------
-  //
-  // Native HTML5 drag-and-drop can't render a live, styled ghost that tracks the
-  // cursor, so tab dragging is driven by mouse events instead: a small movement
-  // threshold after mousedown arms the drag, a floating ghost element tracks the
-  // pointer, and elementFromPoint on every move decides what's being hovered.
-
-  var drag = null; // { tabId, ghostEl, sourceRow, overRow, overViewport, side }
-  var suppressNextClick = false;
-
-  document.addEventListener("click", function (e) {
-    if (suppressNextClick) {
-      suppressNextClick = false;
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }, true);
-
-  function beginPotentialDrag(downEvent, tabId, sourceRow) {
-    var startX = downEvent.clientX, startY = downEvent.clientY;
-    var moved = false;
-
-    function onMove(e) {
-      if (!moved) {
-        if (Math.abs(e.clientX - startX) < 4 && Math.abs(e.clientY - startY) < 4) return;
-        moved = true;
-        startDrag(tabId, sourceRow, e);
-      }
-      e.preventDefault();
-      updateDragGhost(e.clientX, e.clientY);
-      updateDropTargets(e.clientX, e.clientY);
-    }
-
-    function onUp(e) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
-      if (moved) {
-        suppressNextClick = true;
-        finishDrag(e.clientX, e.clientY);
-      }
-    }
-
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-  }
-
-  function startDrag(tabId, sourceRow, e) {
-    state.dragTabId = tabId;
-    drag = { tabId: tabId, sourceRow: sourceRow, overRow: null, overViewport: false, side: null };
-    sourceRow.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    document.body.style.cursor = "grabbing";
-
-    var t = byId[tabId];
-    var ghost = document.createElement("div");
-    ghost.className = "drag-ghost";
-    var fav = faviconEl(t);
-    var label = document.createElement("div");
-    label.textContent = t.name;
-    ghost.appendChild(fav);
-    ghost.appendChild(label);
-    document.body.appendChild(ghost);
-    drag.ghostEl = ghost;
-    updateDragGhost(e.clientX, e.clientY);
-  }
-
-  function updateDragGhost(x, y) {
-    if (!drag || !drag.ghostEl) return;
-    drag.ghostEl.style.left = x + "px";
-    drag.ghostEl.style.top = y + "px";
-  }
-
-  function updateDropTargets(x, y) {
-    if (!drag) return;
-    var el = document.elementFromPoint(x, y);
-
-    if (drag.overRow) {
-      drag.overRow.classList.remove("drop-target", "drop-side-left", "drop-side-right");
-      drag.overRow = null;
-    }
-    drag.overViewport = false;
-    drag.side = null;
-
-    var rowEl = el && el.closest(".tab[data-id]");
-    if (rowEl && rowEl.dataset.id && rowEl.dataset.id !== drag.tabId) {
-      var rowRect = rowEl.getBoundingClientRect();
-      var rowSide = (x - rowRect.left) / rowRect.width < 0.5 ? "left" : "right";
-      rowEl.classList.add("drop-target", rowSide === "left" ? "drop-side-left" : "drop-side-right");
-      var label = rowEl.querySelector(".tab-drop-label");
-      if (label) label.textContent = rowSide === "left" ? "Add left split" : "Add right split";
-      drag.overRow = rowEl;
-      drag.side = rowSide;
-      clearDropOverlay();
-      return;
-    }
-
-    if (state.viewMode !== "split" && el && el.closest("#viewport")) {
-      var rect = viewportEl.getBoundingClientRect();
-      var side = (x - rect.left) / rect.width < 0.5 ? "left" : "right";
-      drag.overViewport = true;
-      drag.side = side;
-      var l = document.getElementById("dropLeft");
-      var r = document.getElementById("dropRight");
-      if (l && r) {
-        if (side === "left") {
-          l.classList.add("armed"); l.classList.remove("dim");
-          r.classList.remove("armed"); r.classList.add("dim");
-        } else {
-          r.classList.add("armed"); r.classList.remove("dim");
-          l.classList.remove("armed"); l.classList.add("dim");
-        }
-      }
-      return;
-    }
-
-    clearDropOverlay();
-  }
-
-  function finishDrag(x, y) {
-    var d = drag;
-    var handled = false;
-
-    if (d.overRow) {
-      var otherId = d.overRow.dataset.id;
-      state.splitGroup = d.side === "left" ? [d.tabId, otherId] : [otherId, d.tabId];
-      state.viewMode = "split";
-      state.selected.clear();
-      handled = true;
-      showToast("Split view — " + byId[state.splitGroup[0]].name.split(" —")[0] + " / " + byId[state.splitGroup[1]].name.split(" —")[0]);
-    } else if (d.overViewport && d.tabId !== state.activeId) {
-      state.splitGroup = d.side === "left" ? [d.tabId, state.activeId] : [state.activeId, d.tabId];
-      state.viewMode = "split";
-      state.selected.clear();
-      handled = true;
-      showToast("Split view — " + byId[state.splitGroup[0]].name.split(" —")[0] + " / " + byId[state.splitGroup[1]].name.split(" —")[0]);
-    }
-
-    cleanupDrag();
-    if (handled) renderAll();
-  }
-
-  function cleanupDrag() {
-    if (!drag) return;
-    if (drag.ghostEl) drag.ghostEl.remove();
-    if (drag.sourceRow) drag.sourceRow.classList.remove("dragging");
-    if (drag.overRow) drag.overRow.classList.remove("drop-target", "drop-side-left", "drop-side-right");
-    document.body.style.userSelect = "";
-    document.body.style.cursor = "";
-    clearDropOverlay();
-    state.dragTabId = null;
-    drag = null;
-  }
-
-  // ---------------- Context menu ----------------
-
-  function openCtxMenu(x, y, mode) {
-    ctxMenuMode = mode || "select";
-    ctxMenu.classList.add("open");
-    ctxSplitItem.style.display = ctxMenuMode === "split-row" ? "none" : "flex";
-    ctxSplitHint.style.display = ctxMenuMode === "split-row" ? "none" : "flex";
-    ctxSeparateItem.style.display = ctxMenuMode === "split-row" ? "flex" : "none";
-    var w = 190, h = ctxMenuMode === "split-row" ? 40 : 78;
-    var vw = window.innerWidth, vh = window.innerHeight;
-    ctxMenu.style.left = Math.min(x, vw - w - 8) + "px";
-    ctxMenu.style.top = Math.min(y, vh - h - 8) + "px";
-    updateCtxState();
-  }
-
-  function closeCtxMenu() {
-    ctxMenu.classList.remove("open");
-  }
-
-  function updateCtxState() {
-    var ready = state.selected.size === 2;
-    ctxSplitItem.classList.toggle("disabled", !ready);
-  }
-
-  ctxSplitItem.addEventListener("click", function () {
-    if (state.selected.size !== 2) return;
-    var ids = Array.from(state.selected);
-    state.splitGroup = ids;
-    state.viewMode = "split";
-    state.selected.clear();
-    closeCtxMenu();
-    renderAll();
-    showToast("Split view — " + byId[ids[0]].name.split(" —")[0] + " / " + byId[ids[1]].name.split(" —")[0]);
-  });
-
-  ctxSeparateItem.addEventListener("click", function () {
-    closeCtxMenu();
-    unmergeSplit();
-  });
-
-  document.addEventListener("click", function (e) {
-    if (!ctxMenu.contains(e.target)) closeCtxMenu();
-  });
-  document.addEventListener("contextmenu", function (e) {
-    if (!e.target.closest(".tab")) closeCtxMenu();
-  });
-  window.addEventListener("scroll", closeCtxMenu, true);
-
-  // ---------------- Render ----------------
-
-  function renderAll() {
-    renderTabList();
-    renderViewport();
-  }
-
-  renderAll();
-})();
+  renderVals() { return {}; }
+}
 </script>
+</body>
+</html>
