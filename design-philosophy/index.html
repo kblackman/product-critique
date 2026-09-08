@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300..800&amp;display=swap">
+<style>
+  :root { --u: min(1vw, 1.78vh); }
+  body { margin: 0; background: #272727; color: #ffffff; -webkit-font-smoothing: antialiased; font-family: Figtree, system-ui, sans-serif; }
+  h1, h2, h3, h4 { font-family: Figtree, system-ui, sans-serif; }
+  a { color: #FFC700; text-decoration: none; }
+  a:hover { color: #ffd84d; }
+  ::selection { background: rgba(255,199,0,0.25); }
+  .reveal-on [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity 1150ms cubic-bezier(.16,.84,.34,1), transform 1300ms cubic-bezier(.16,.84,.34,1); }
+  .reveal-on [data-reveal].in { opacity: 1; transform: none; }
+  .reveal-on [data-reveal][data-delay="1"] { transition-delay: 280ms; }
+  .reveal-on [data-reveal][data-delay="2"] { transition-delay: 560ms; }
+  .reveal-on [data-reveal][data-delay="3"] { transition-delay: 840ms; }
+  .reveal-on [data-reveal][data-delay="4"] { transition-delay: 1120ms; }
+  .reveal-on [data-motif] path { opacity: 0; transform: scale(0.86) rotate(-14deg); transform-origin: 60px 60px; transition: opacity 700ms ease, transform 900ms cubic-bezier(.16,.84,.34,1); }
+  .reveal-on [data-motif].in path { opacity: 1; transform: none; transition-delay: 0ms; }
+  .reveal-on [data-motif].in path:nth-of-type(2) { transition-delay: 110ms; }
+  .reveal-on [data-motif].in path:nth-of-type(3) { transition-delay: 220ms; }
+  .reveal-on [data-motif].in path:nth-of-type(4) { transition-delay: 330ms; }
+  .reveal-on [data-assembly] [data-phase] { opacity: 0; transition: opacity 900ms ease; }
+  .reveal-on [data-assembly] path { opacity: 0; transform: scale(0.86) rotate(-14deg); transform-origin: 60px 60px; transition: opacity 700ms ease, transform 900ms cubic-bezier(.16,.84,.34,1); }
+  .reveal-on [data-assembly].in [data-phase] { opacity: 1; }
+  .reveal-on [data-assembly].in path { opacity: 1; transform: none; }
+  .reveal-on [data-assembly].in [data-phase="1"] { transition-delay: 0ms; }
+  .reveal-on [data-assembly].in [data-phase="1"] path { transition-delay: 0ms; }
+  .reveal-on [data-assembly].in [data-phase="2"] { transition-delay: 560ms; }
+  .reveal-on [data-assembly].in [data-phase="2"] path { transition-delay: 560ms; }
+  .reveal-on [data-assembly].in [data-phase="3"] { transition-delay: 1120ms; }
+  .reveal-on [data-assembly].in [data-phase="3"] path { transition-delay: 1120ms; }
+  .reveal-on [data-assembly].in [data-phase="4"] { transition-delay: 1680ms; }
+  .reveal-on [data-assembly].in [data-phase="4"] path { transition-delay: 1680ms; }
+  .reveal-on [data-motif] path[data-neon] { opacity: 0; transform: none; transition: none; }
+  .reveal-on [data-motif].in path[data-neon] { opacity: 0; transform: none; animation: neonOn 1150ms cubic-bezier(.4,0,.5,1) forwards; }
+  .reveal-on [data-motif].in path[data-neon]:nth-of-type(2) { animation-delay: 560ms; }
+  .reveal-on [data-motif].in path[data-neon]:nth-of-type(3) { animation-delay: 700ms; }
+  .reveal-on [data-motif].in path[data-neon]:nth-of-type(4) { animation-delay: 840ms; }
+  @keyframes neonOn {
+    0%   { opacity: 0; filter: none; }
+    6%   { opacity: 1; filter: drop-shadow(0 0 7px rgba(255,199,0,0.55)); }
+    11%  { opacity: 0.06; filter: none; }
+    19%  { opacity: 0.92; filter: drop-shadow(0 0 5px rgba(255,199,0,0.4)); }
+    25%  { opacity: 0.1; filter: none; }
+    34%  { opacity: 1; filter: drop-shadow(0 0 9px rgba(255,199,0,0.6)); }
+    43%  { opacity: 0.45; filter: none; }
+    55%  { opacity: 1; filter: drop-shadow(0 0 11px rgba(255,199,0,0.45)); }
+    100% { opacity: 1; filter: drop-shadow(0 0 0 rgba(255,199,0,0)); }
+  }
+  @keyframes scrollTrace { 0% { transform: translateY(-100%); } 55% { transform: translateY(240%); } 100% { transform: translateY(240%); } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-trace] { animation: none !important; opacity: 0.9; }
+    .reveal-on [data-reveal] { opacity: 1; transform: none; transition: none; }
+    .reveal-on [data-motif] path, .reveal-on [data-assembly] path { opacity: 1; transform: none; transition: none; }
+    .reveal-on [data-motif].in path[data-neon] { opacity: 1; animation: none; }
+    .reveal-on [data-assembly] [data-phase] { opacity: 1; transition: none; }
+  }
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="background:#272727; color:#ffffff; font-family:Figtree, system-ui, sans-serif; position:relative">
+
+  <div style="position:fixed; top:0; left:0; height:1px; width:100%; background:rgba(255,255,255,0.08); z-index:60">
+    <div ref="{{ progressRef }}" style="height:100%; width:0%; background:linear-gradient(90deg, rgba(255,199,0,0.3), #FFC700); transition:width 120ms linear"></div>
+  </div>
+
+  <header style="position:fixed; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding:26px 40px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); z-index:55; pointer-events:none">
+    <svg viewBox="0 0 105 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="bkmn" style="display:block; height:18px; width:auto">
+      <path d="M92.9351 15.3565C89.8151 15.3565 88.411 17.8915 88.411 20.8555V29.8255H82.873V20.1925C82.873 14.5765 86.1881 9.9745 92.9351 9.9745C99.6821 9.9745 103.075 14.5375 103.075 20.1925V29.8255H97.537V20.8555C97.537 17.8915 96.0941 15.3565 92.9351 15.3565Z" fill="#FFFFFF"></path>
+      <path d="M70.692 9.8185C76.971 9.8185 80.169 14.3425 80.169 19.7245V29.8255H74.631V20.6605C74.631 17.6965 73.344 15.2005 70.302 15.2005C67.299 15.2005 66.012 17.6575 66.012 20.5825V29.8255H60.474V20.6215C60.474 17.6575 59.187 15.2005 56.184 15.2005C53.103 15.2005 51.894 17.6965 51.894 20.6215V29.8255H46.356V19.7245C46.356 14.3425 49.515 9.8185 55.755 9.8185C59.46 9.8185 62.151 11.4565 63.282 14.1085C64.491 11.4565 67.221 9.8185 70.692 9.8185Z" fill="#FFFFFF"></path>
+      <path d="M30.8964 29.8255H25.3584V1.6285H30.8964V18.0085H32.7294C32.9244 17.6575 33.1584 17.3065 33.4314 16.9555L38.7744 10.5205H45.3654L37.3314 20.1145L45.3264 29.8255H38.7354L33.3924 23.2735C33.1194 22.9225 32.8854 22.5325 32.6904 22.1425H30.8964V29.8255Z" fill="#FFC700"></path>
+      <path d="M12.3768 30.3715C6.37081 30.3715 1.9248 26.0425 1.9248 20.1925V1.6285H7.4628V11.7685C8.9058 10.6765 10.7388 9.9745 12.6888 9.9745C18.6948 9.9745 22.8288 14.1865 22.8288 20.1925C22.8288 25.7695 18.3438 30.3715 12.3768 30.3715ZM12.3768 25.1455C15.2238 25.1455 17.2908 22.9225 17.2908 20.1925C17.2908 17.4625 15.2238 15.2005 12.3768 15.2005C9.52981 15.2005 7.4628 17.4625 7.4628 20.1925C7.4628 22.9225 9.52981 25.1455 12.3768 25.1455Z" fill="#FFFFFF"></path>
+    </svg>
+    <span>Design philosophy</span>
+  </header>
+
+  <div data-rail="" style="position:fixed; left:clamp(16px, 2.4vw, 34px); top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:14px; z-index:50; opacity:0; transition:opacity 700ms ease; pointer-events:none">
+    <span data-tick="" style="display:block; width:14px; height:1px; background:rgba(255,255,255,0.45); transition:width 520ms cubic-bezier(.16,.84,.34,1), background 520ms ease, opacity 520ms ease"></span>
+    <span data-tick="" style="display:block; width:14px; height:1px; background:rgba(255,255,255,0.45); transition:width 520ms cubic-bezier(.16,.84,.34,1), background 520ms ease, opacity 520ms ease"></span>
+    <span data-tick="" style="display:block; width:14px; height:1px; background:rgba(255,255,255,0.45); transition:width 520ms cubic-bezier(.16,.84,.34,1), background 520ms ease, opacity 520ms ease"></span>
+    <span data-tick="" style="display:block; width:14px; height:1px; background:rgba(255,255,255,0.45); transition:width 520ms cubic-bezier(.16,.84,.34,1), background 520ms ease, opacity 520ms ease"></span>
+  </div>
+
+  <div style="height:100vh; perspective:1400px; perspective-origin:50% 40%">
+  <section data-hero="" style="position:sticky; top:0; height:100vh; transform-style:preserve-3d; will-change:transform, filter, opacity; display:grid; align-content:center; padding:0 40px 0 clamp(32px, calc(var(--u) * 9), 200px); box-sizing:border-box">
+    <div style="max-width:1080px">
+      <div data-reveal="" style="margin-bottom:clamp(30px, calc(var(--u) * 3), 52px)">
+        <svg viewBox="0 0 105 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="bkmn" style="display:block; height:clamp(24px, calc(var(--u) * 2.5), 52px); width:auto">
+          <path d="M92.9351 15.3565C89.8151 15.3565 88.411 17.8915 88.411 20.8555V29.8255H82.873V20.1925C82.873 14.5765 86.1881 9.9745 92.9351 9.9745C99.6821 9.9745 103.075 14.5375 103.075 20.1925V29.8255H97.537V20.8555C97.537 17.8915 96.0941 15.3565 92.9351 15.3565Z" fill="#ffffff"></path>
+          <path d="M70.692 9.8185C76.971 9.8185 80.169 14.3425 80.169 19.7245V29.8255H74.631V20.6605C74.631 17.6965 73.344 15.2005 70.302 15.2005C67.299 15.2005 66.012 17.6575 66.012 20.5825V29.8255H60.474V20.6215C60.474 17.6575 59.187 15.2005 56.184 15.2005C53.103 15.2005 51.894 17.6965 51.894 20.6215V29.8255H46.356V19.7245C46.356 14.3425 49.515 9.8185 55.755 9.8185C59.46 9.8185 62.151 11.4565 63.282 14.1085C64.491 11.4565 67.221 9.8185 70.692 9.8185Z" fill="#ffffff"></path>
+          <path d="M30.8964 29.8255H25.3584V1.6285H30.8964V18.0085H32.7294C32.9244 17.6575 33.1584 17.3065 33.4314 16.9555L38.7744 10.5205H45.3654L37.3314 20.1145L45.3264 29.8255H38.7354L33.3924 23.2735C33.1194 22.9225 32.8854 22.5325 32.6904 22.1425H30.8964V29.8255Z" fill="#FFC700"></path>
+          <path d="M12.3768 30.3715C6.37081 30.3715 1.9248 26.0425 1.9248 20.1925V1.6285H7.4628V11.7685C8.9058 10.6765 10.7388 9.9745 12.6888 9.9745C18.6948 9.9745 22.8288 14.1865 22.8288 20.1925C22.8288 25.7695 18.3438 30.3715 12.3768 30.3715ZM12.3768 25.1455C15.2238 25.1455 17.2908 22.9225 17.2908 20.1925C17.2908 17.4625 15.2238 15.2005 12.3768 15.2005C9.52981 15.2005 7.4628 17.4625 7.4628 20.1925C7.4628 22.9225 9.52981 25.1455 12.3768 25.1455Z" fill="#ffffff"></path>
+        </svg>
+      </div>
+      <h1 data-reveal="" data-delay="2" style="font-size:clamp(32px, calc(var(--u) * 5.4), 100px); font-weight:800; line-height:1.06; letter-spacing:-0.03em; margin:0; max-width:16ch; text-wrap:balance">What I believe about design, and how it plays out in practice.</h1>
+      <p data-reveal="" data-delay="3" style="margin:34px 0 0; font-size:clamp(15px, calc(var(--u) * 1.35), 25px); line-height:1.6; color:rgba(255,255,255,0.6); max-width:52ch; text-wrap:pretty">Four working principles, tested most recently while building Attribution's Recommendation Cards at Freshpaint.</p>
+    </div>
+    <div data-reveal="" data-delay="4" style="position:absolute; bottom:40px; left:clamp(32px, calc(var(--u) * 9), 200px); display:flex; align-items:center; gap:12px; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.32)">
+      <span style="display:block; position:relative; width:1px; height:42px; background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0) 100%); overflow:hidden; -webkit-mask-image:linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); mask-image:linear-gradient(180deg, #000 0%, #000 45%, transparent 100%)"><span data-trace="" style="display:block; position:absolute; inset:0; background:linear-gradient(180deg, rgba(255,199,0,0) 0%, #FFC700 50%, rgba(255,199,0,0) 100%); animation:scrollTrace 2.6s cubic-bezier(.5,0,.5,1) infinite"></span></span>
+      Scroll
+    </div>
+  </section>
+  </div>
+
+  <div style="position:relative; padding-bottom:12vh">
+
+    <div data-card="" style="box-sizing:border-box; position:sticky; top:7vh; height:86vh; transform-origin:50% 0%; will-change:transform, filter; border:1px solid rgba(255,255,255,0.10); border-radius:16px; background:linear-gradient(168deg, #2E2F33 0%, #131521 100%); box-shadow:0 -28px 70px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) inset; margin:0 clamp(16px, 4vw, 56px) 58vh; overflow:hidden; display:flex; flex-direction:column; justify-content:center; padding:clamp(32px, calc(var(--u) * 5), 118px)">
+      <div style="display:grid; grid-template-columns:minmax(150px, 12vw) minmax(0, 1fr); gap:clamp(18px, calc(var(--u) * 3), 60px); align-items:start">
+        <div style="display:flex; flex-direction:column; gap:clamp(16px, calc(var(--u) * 1.8), 30px); align-items:start">
+          <svg data-motif="" data-reveal="" data-delay="2" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:clamp(56px, calc(var(--u) * 6), 108px); height:auto; overflow:visible"><path d="M60 60V16A44 44 0 0 1 104 60Z" fill="#FFC700"></path></svg>
+          <div data-reveal="" data-delay="1" style="display:flex; flex-direction:row; align-items:baseline; gap:10px; white-space:nowrap">
+            <span style="font-size:clamp(11px, calc(var(--u) * 0.95), 18px); letter-spacing:0.18em; color:#FFC700">01</span>
+            <span style="font-size:clamp(10px, calc(var(--u) * 0.85), 16px); letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.42)">Evidence</span>
+          </div>
+        </div>
+        <div style="max-width:760px">
+          <h2 data-reveal="" style="font-size:clamp(24px, calc(var(--u) * 3.4), 68px); font-weight:700; line-height:1.1; letter-spacing:-0.025em; margin:0; text-wrap:balance">Data over assumption, every time.</h2>
+          <p data-reveal="" data-delay="1" style="margin:30px 0 0; font-size:clamp(15px, calc(var(--u) * 1.35), 26px); line-height:1.65; color:rgba(255,255,255,0.7); max-width:58ch; text-wrap:pretty">I don't start with what seems obviously true. I start with data, and to me that means both what usage numbers show and what customers actually tell me. When a choice as small as a flooring option can quietly move a budget, assumption is an expensive place to start.</p>
+        </div>
+      </div>
+    </div>
+
+    <div data-card="" style="box-sizing:border-box; position:sticky; top:7vh; height:86vh; transform-origin:50% 0%; will-change:transform, filter; border:1px solid rgba(255,255,255,0.10); border-radius:16px; background:linear-gradient(168deg, #2E2F33 0%, #131521 100%); box-shadow:0 -28px 70px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) inset; margin:0 clamp(16px, 4vw, 56px) 58vh; overflow:hidden; display:flex; flex-direction:column; justify-content:center; padding:clamp(32px, calc(var(--u) * 5), 118px)">
+      <div style="display:grid; grid-template-columns:minmax(150px, 12vw) minmax(0, 1fr); gap:clamp(18px, calc(var(--u) * 3), 60px); align-items:start">
+        <div style="display:flex; flex-direction:column; gap:clamp(16px, calc(var(--u) * 1.8), 30px); align-items:start">
+          <svg data-motif="" data-reveal="" data-delay="2" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:clamp(56px, calc(var(--u) * 6), 108px); height:auto; overflow:visible"><path d="M60 60V16A44 44 0 0 1 104 60Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60H104A44 44 0 0 1 60 104Z" data-neon="" fill="#FFC700"></path></svg>
+          <div data-reveal="" data-delay="1" style="display:flex; flex-direction:row; align-items:baseline; gap:10px; white-space:nowrap">
+            <span style="font-size:clamp(11px, calc(var(--u) * 0.95), 18px); letter-spacing:0.18em; color:#FFC700">02</span>
+            <span style="font-size:clamp(10px, calc(var(--u) * 0.85), 16px); letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.42)">Transparency</span>
+          </div>
+        </div>
+        <div style="max-width:760px">
+          <h2 data-reveal="" style="font-size:clamp(24px, calc(var(--u) * 3.4), 68px); font-weight:700; line-height:1.1; letter-spacing:-0.025em; margin:0; text-wrap:balance">Show your work.</h2>
+          <p data-reveal="" data-delay="1" style="margin:30px 0 0; font-size:clamp(15px, calc(var(--u) * 1.35), 26px); line-height:1.65; color:rgba(255,255,255,0.7); max-width:54ch; text-wrap:pretty">If something is going to shape a person's decision, whether that's an AI-generated suggestion or a number on a dashboard, they deserve to see where it came from. Show the reasoning, not just the result</p>
+        </div>
+      </div>
+    </div>
+
+    <div data-card="" style="box-sizing:border-box; position:sticky; top:7vh; height:86vh; transform-origin:50% 0%; will-change:transform, filter; border:1px solid rgba(255,255,255,0.10); border-radius:16px; background:linear-gradient(168deg, #2E2F33 0%, #131521 100%); box-shadow:0 -28px 70px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) inset; margin:0 clamp(16px, 4vw, 56px) 58vh; overflow:hidden; display:flex; flex-direction:column; justify-content:center; padding:clamp(32px, calc(var(--u) * 5), 118px)">
+      <div style="display:grid; grid-template-columns:minmax(150px, 12vw) minmax(0, 1fr); gap:clamp(18px, calc(var(--u) * 3), 60px); align-items:start">
+        <div style="display:flex; flex-direction:column; gap:clamp(16px, calc(var(--u) * 1.8), 30px); align-items:start">
+          <svg data-motif="" data-reveal="" data-delay="2" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:clamp(56px, calc(var(--u) * 6), 108px); height:auto; overflow:visible"><path d="M60 60V16A44 44 0 0 1 104 60Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60H104A44 44 0 0 1 60 104Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60V104A44 44 0 0 1 16 60Z" data-neon="" fill="#FFC700"></path></svg>
+          <div data-reveal="" data-delay="1" style="display:flex; flex-direction:row; align-items:baseline; gap:10px; white-space:nowrap">
+            <span style="font-size:clamp(11px, calc(var(--u) * 0.95), 18px); letter-spacing:0.18em; color:#FFC700">03</span>
+            <span style="font-size:clamp(10px, calc(var(--u) * 0.85), 16px); letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.42)">Ownership</span>
+          </div>
+        </div>
+        <div style="max-width:760px">
+          <h2 data-reveal="" style="font-size:clamp(24px, calc(var(--u) * 3.4), 68px); font-weight:700; line-height:1.1; letter-spacing:-0.025em; margin:0; text-wrap:balance">Ownership doesn't end at launch.</h2>
+          <p data-reveal="" data-delay="1" style="margin:30px 0 0; font-size:clamp(15px, calc(var(--u) * 1.35), 26px); line-height:1.65; color:rgba(255,255,255,0.7); max-width:58ch; text-wrap:pretty">Shipping is the midpoint, not the finish line. I stay with what I build long enough to know if it's actually working, and to fix it if it isn't. That matters even more when the thing you're optimizing for is retention, not just adoption.</p>
+        </div>
+      </div>
+    </div>
+
+    <div data-card="" style="box-sizing:border-box; position:sticky; top:7vh; height:86vh; transform-origin:50% 0%; will-change:transform, filter; border:1px solid rgba(255,255,255,0.10); border-radius:16px; background:linear-gradient(168deg, #2E2F33 0%, #131521 100%); box-shadow:0 -28px 70px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) inset; margin:0 clamp(16px, 4vw, 56px) 58vh; overflow:hidden; display:flex; flex-direction:column; justify-content:center; padding:clamp(32px, calc(var(--u) * 5), 118px)">
+      <div style="display:grid; grid-template-columns:minmax(150px, 12vw) minmax(0, 1fr); gap:clamp(18px, calc(var(--u) * 3), 60px); align-items:start">
+        <div style="display:flex; flex-direction:column; gap:clamp(16px, calc(var(--u) * 1.8), 30px); align-items:start">
+          <svg data-motif="" data-reveal="" data-delay="2" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:clamp(56px, calc(var(--u) * 6), 108px); height:auto; overflow:visible"><path d="M60 60V16A44 44 0 0 1 104 60Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60H104A44 44 0 0 1 60 104Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60V104A44 44 0 0 1 16 60Z" fill="rgba(255,199,0,0.2)"></path><path d="M60 60H16A44 44 0 0 1 60 16Z" data-neon="" fill="#FFC700"></path></svg>
+          <div data-reveal="" data-delay="1" style="display:flex; flex-direction:row; align-items:baseline; gap:10px; white-space:nowrap">
+            <span style="font-size:clamp(11px, calc(var(--u) * 0.95), 18px); letter-spacing:0.18em; color:#FFC700">04</span>
+            <span style="font-size:clamp(10px, calc(var(--u) * 0.85), 16px); letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.42)">Judgment</span>
+          </div>
+        </div>
+        <div style="max-width:760px">
+          <h2 data-reveal="" style="font-size:clamp(24px, calc(var(--u) * 3.4), 68px); font-weight:700; line-height:1.1; letter-spacing:-0.025em; margin:0; text-wrap:balance">AI is a partner, not the main brain.</h2>
+          <p data-reveal="" data-delay="1" style="margin:30px 0 0; font-size:clamp(15px, calc(var(--u) * 1.35), 26px); line-height:1.65; color:rgba(255,255,255,0.7); max-width:50ch; text-wrap:pretty">It speeds up how fast I can think, prototype, and ship. It doesn't replace good judgment. I decide what to keep, what to edit, and what to reject, every time.</p>
+        </div>
+      </div>
+    </div>
+
+    <div data-card="" data-last="" style="box-sizing:border-box; position:sticky; top:7vh; height:86vh; transform-origin:50% 0%; border:1px solid rgba(255,199,0,0.22); border-radius:16px; background:radial-gradient(110% 85% at 10% 100%, rgba(255,199,0,0.13) 0%, rgba(255,199,0,0) 60%), linear-gradient(168deg, #2E2F33 0%, #131521 100%); box-shadow:0 -28px 70px rgba(0,0,0,0.55); margin:0 clamp(16px, 4vw, 56px); overflow:hidden; display:flex; flex-direction:column; justify-content:center; padding:clamp(32px, calc(var(--u) * 5), 118px)">
+      <div style="display:grid; grid-template-columns:minmax(150px, 12vw) minmax(0, 1fr); gap:clamp(18px, calc(var(--u) * 3), 60px); align-items:start">
+        <div>
+          <svg data-assembly="" data-reveal="" data-delay="2" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:clamp(72px, calc(var(--u) * 7.4), 132px); height:auto; overflow:visible">
+            <g data-phase="1"><path d="M60 60V16A44 44 0 0 1 104 60Z" fill="#FFC700"></path></g>
+            <g data-phase="2"><path d="M60 60H104A44 44 0 0 1 60 104Z" fill="#FFC700"></path></g>
+            <g data-phase="3"><path d="M60 60V104A44 44 0 0 1 16 60Z" fill="#FFC700"></path></g>
+            <g data-phase="4"><path d="M60 60H16A44 44 0 0 1 60 16Z" fill="#FFC700"></path></g>
+          </svg>
+        </div>
+        <div style="max-width:800px">
+          <p data-reveal="" data-delay="1" style="margin:0; font-size:clamp(20px, calc(var(--u) * 2.4), 48px); line-height:1.32; letter-spacing:-0.02em; color:#ffffff; max-width:24ch; text-wrap:pretty; font-weight:400; text-align:left">These aren't abstract values. They're the exact principles behind the case study I want to walk you through next.</p>
+          <div data-reveal="" data-delay="2" style="margin-top:46px">
+            <a href="https://www.kyleblackman.com/recommendation-cards" style="display:inline-flex; align-items:center; gap:14px; padding:17px 26px; border:1px solid rgba(255,199,0,0.55); border-radius:8px; color:#FFC700; font-size:clamp(14px, calc(var(--u) * 1.15), 21px); transition:background 260ms ease, border-color 260ms ease, transform 260ms cubic-bezier(.22,.61,.36,1)" style-hover="background:rgba(255,199,0,0.10); border-color:#FFC700; transform:translateX(4px)">
+              View the case study — Recommendation Cards
+              <svg viewBox="0 0 22 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; width:22px; height:12px; flex:none"><path d="M1 6H21M21 6L15.6 1M21 6L15.6 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.root = React.createRef();
+    this.progress = React.createRef();
+  }
+  componentDidMount() {
+    const scope = () => this.root.current || document;
+    if (this.root.current) this.root.current.classList.add('reveal-on');
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.2, rootMargin: '0px 0px -12% 0px' });
+    // Cards reveal from their sticky rest position (handled in frame()), not on intersection.
+    this.observe = () => scope().querySelectorAll('[data-reveal]:not(.in)').forEach((el) => {
+      if (!el.closest('[data-card]')) io.observe(el);
+    });
+    this.observe();
+    this.retry = setTimeout(this.observe, 400);
+    this.safety = setTimeout(() => {
+      const hero = scope().querySelector('[data-hero]');
+      if (hero && !hero.querySelector('[data-reveal].in')) {
+        hero.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in'));
+      }
+    }, 1200);
+    this.io = io;
+
+    const ease = (t) => t * t * (3 - 2 * t);
+    const frame = () => {
+      this.ticking = false;
+      const cards = [...scope().querySelectorAll('[data-card]')];
+      const winH = window.innerHeight;
+      const rest = winH * 0.07;
+
+      const hero = scope().querySelector('[data-hero]');
+      if (hero) {
+        const h = ease(Math.min(1, Math.max(0, window.scrollY / (winH * 0.92))));
+        hero.style.transform = 'translate3d(0,0,' + (-320 * h).toFixed(1) + 'px)';
+        hero.style.filter = 'blur(' + (7 * h).toFixed(2) + 'px) brightness(' + (1 - 0.45 * h).toFixed(3) + ')';
+        hero.style.opacity = (1 - 0.9 * h).toFixed(3);
+      }
+      cards.forEach((card, i) => {
+        if (!card.dataset.revealed && card.getBoundingClientRect().top <= rest + 8) {
+          card.dataset.revealed = '1';
+          card.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in'));
+        }
+        const next = cards[i + 1];
+        if (!next) { card.style.transform = ''; card.style.filter = ''; return; }
+        const n = next.getBoundingClientRect().top;
+        const p = ease(Math.min(1, Math.max(0, (winH - n) / (winH - rest))));
+        card.style.transform = 'translate3d(0,' + (-2.4 * p).toFixed(2) + 'vh,0) scale(' + (1 - 0.08 * p).toFixed(4) + ')';
+        card.style.filter = 'brightness(' + (1 - 0.36 * p).toFixed(3) + ') blur(' + (1.6 * p).toFixed(2) + 'px)';
+      });
+
+      const rail = scope().querySelector('[data-rail]');
+      if (rail) {
+        const ticks = [...rail.querySelectorAll('[data-tick]')];
+        const active = cards
+          .filter((c) => !c.hasAttribute('data-last'))
+          .reduce((acc, card, i) => (card.getBoundingClientRect().top <= winH * 0.4 ? i : acc), -1);
+        rail.style.opacity = active >= 0 ? '1' : '0';
+        ticks.forEach((tick, i) => {
+          const isActive = i === active;
+          const passed = i < active;
+          tick.style.width = isActive ? '30px' : '14px';
+          tick.style.background = isActive ? '#FFC700' : 'rgba(255,255,255,0.45)';
+          tick.style.opacity = isActive ? '1' : (passed ? '0.85' : '0.6');
+        });
+      }
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (this.progress.current) {
+        this.progress.current.style.width = (max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0) + '%';
+      }
+    };
+    this.onScroll = () => {
+      if (this.ticking) return;
+      this.ticking = true;
+      requestAnimationFrame(frame);
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onScroll);
+    frame();
+  }
+  componentWillUnmount() {
+    if (this.io) this.io.disconnect();
+    clearTimeout(this.retry);
+    clearTimeout(this.safety);
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onScroll);
+  }
+  renderVals() {
+    return { rootRef: this.root, progressRef: this.progress };
+  }
+}
+</script>
+</body>
+</html>
