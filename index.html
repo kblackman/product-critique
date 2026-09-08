@@ -200,7 +200,7 @@
 
 </div>
 
-<div id="dia-spacer" style="height: 3400vh; pointer-events: none"></div>
+<div id="dia-spacer" style="height: 3576vh; pointer-events: none"></div>
 ]]>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{}">
@@ -212,30 +212,30 @@ class Component extends DCLogic {
     this.KF = [
       [0.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
       [2.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
-      [3.2,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
-      [4.6,   0, 1.54, 0.078, 0.255, 0.500, 0.50],
-      [5.8,   0, 2.20, 0.078, 0.080, 0.537, 0.40],
-      [7.0,   0, 2.24, 0.078, 0.080, 0.537, 0.40],
-      [8.2,   0, 1.80, 0.078, 0.330, 0.520, 0.61],
-      [9.0,   0, 1.84, 0.078, 0.330, 0.520, 0.61],
-      [10.4,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
-      [11.5,  0, 0.65, 0.500, 0.500, 0.695, 0.50],
-      [12.9,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
-      [14.0,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
-      [15.8,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
-      [17.4,  0, 1.66, 0.885, 0.400, 0.780, 0.50],
-      [19.2,  0, 1.70, 0.885, 0.400, 0.780, 0.50],
-      [20.6,  0, 1.45, 0.554, 0.476, 0.695, 0.48],
-      [22.2,  0, 1.52, 0.554, 0.476, 0.695, 0.48],
-      [23.2,  0, 0.66, 0.500, 0.400, 0.690, 0.50],
-      [24.4,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
-      [25.1,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
-      [26.2,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
-      [26.9,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
-      [28.2, 22, 1.00, 0.500, 0.000, 0.50, 0.50],
-      [29.0, 22, 1.00, 0.500, 0.000, 0.50, 0.50]
+      [4.7,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
+      [6.1,   0, 1.54, 0.078, 0.255, 0.500, 0.50],
+      [7.3,   0, 2.20, 0.078, 0.080, 0.537, 0.40],
+      [8.5,   0, 2.24, 0.078, 0.080, 0.537, 0.40],
+      [9.7,   0, 1.80, 0.078, 0.330, 0.520, 0.61],
+      [10.5,   0, 1.84, 0.078, 0.330, 0.520, 0.61],
+      [11.9,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
+      [13.0,  0, 0.65, 0.500, 0.500, 0.695, 0.50],
+      [14.4,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
+      [15.5,  0, 0.62, 0.500, 0.500, 0.695, 0.50],
+      [17.3,  0, 0.64, 0.500, 0.500, 0.695, 0.50],
+      [18.9,  0, 1.66, 0.885, 0.400, 0.780, 0.50],
+      [20.7,  0, 1.70, 0.885, 0.400, 0.780, 0.50],
+      [22.1,  0, 1.45, 0.554, 0.476, 0.695, 0.48],
+      [23.7,  0, 1.52, 0.554, 0.476, 0.695, 0.48],
+      [24.7,  0, 0.66, 0.500, 0.400, 0.690, 0.50],
+      [25.9,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
+      [26.6,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
+      [27.7,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [28.4,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [29.7, 22, 1.00, 0.500, 0.000, 0.50, 0.50],
+      [30.5, 22, 1.00, 0.500, 0.000, 0.50, 0.50]
     ];
-    this.TOTAL = 29.0;
+    this.TOTAL = 30.5;
 
     // Scroll is locked until the opening logo sequence has docked and the title has landed.
     const html = document.documentElement;
@@ -450,15 +450,15 @@ class Component extends DCLogic {
       if (el) el.style.opacity = v;
     };
 
-    set('dia-l-master', Math.min(1, (1 - S(8.9, 9.6)) + S(27.0, 27.6)));
-    set('dia-l-splitlive', win(8.9, 9.6, 12.3, 12.9));
-    set('dia-l-split1', win(12.3, 12.9, 13.8, 14.4));
-    set('dia-l-split2', win(13.8, 14.4, 15.2, 15.8));
-    set('dia-l-chat', win(15.2, 15.8, 19.4, 20.0));
-    set('dia-l-nt1', win(19.4, 20.0, 21.2, 21.8));
-    set('dia-l-nt2', win(21.2, 21.8, 22.6, 23.2));
-    set('dia-l-brief', win(22.6, 23.2, 27.0, 27.6));
-    set('dia-brief-view', win(22.9, 23.5, 27.0, 27.6));
+    set('dia-l-master', Math.min(1, (1 - S(10.4, 11.1)) + S(28.5, 29.1)));
+    set('dia-l-splitlive', win(10.4, 11.1, 13.8, 14.4));
+    set('dia-l-split1', win(13.8, 14.4, 15.3, 15.9));
+    set('dia-l-split2', win(15.3, 15.9, 16.7, 17.3));
+    set('dia-l-chat', win(16.7, 17.3, 20.9, 21.5));
+    set('dia-l-nt1', win(20.9, 21.5, 22.7, 23.3));
+    set('dia-l-nt2', win(22.7, 23.3, 24.1, 24.7));
+    set('dia-l-brief', win(24.1, 24.7, 28.5, 29.1));
+    set('dia-brief-view', win(24.4, 25.0, 28.5, 29.1));
 
     // The brief page scrolls inside its mask once 4A has settled — the reveal is the page moving, not the camera.
     let bs = this._n['dia-brief-scroll'];
@@ -466,55 +466,55 @@ class Component extends DCLogic {
     if (bs && bs.parentElement) {
       const travel = Math.max(0, bs.offsetHeight - bs.parentElement.offsetHeight);
       // Sealed with the page's own ground so no gap can ever reveal the static cropped layer beneath.
-      bs.style.transform = 'translateY(' + (-travel * 0.82 * S(24.8, 26.9)).toFixed(1) + 'px)';
+      bs.style.transform = 'translateY(' + (-travel * 0.82 * S(26.3, 28.4)).toFixed(1) + 'px)';
     }
 
     // Magenta annotation circles: one at a time, timed to the detail the copy names.
-    set('dia-c1a', win(5.7, 6.2, 7.1, 7.6));
-    set('dia-c1b', win(7.8, 8.4, 9.0, 9.4));
-    set('dia-c3a', win(20.2, 20.7, 21.2, 21.7));
-    set('dia-c3b', win(21.9, 22.4, 22.8, 23.2));
+    set('dia-c1a', win(7.2, 7.7, 8.6, 9.1));
+    set('dia-c1b', win(9.3, 9.9, 10.5, 10.9));
+    set('dia-c3a', win(21.7, 22.2, 22.7, 23.2));
+    set('dia-c3b', win(23.4, 23.9, 24.3, 24.7));
 
     // Bottom vignette only while the frame is in its tilted title/close pose.
-    set('dia-frame-scrim', Math.max(1 - S(1.6, 3.0), S(26.8, 27.8)));
+    set('dia-frame-scrim', Math.max(1 - S(1.6, 4.5), S(28.3, 29.3)));
 
     set('dia-hint', u > 0.15 ? 0 : '');
-    set('dia-copy-title', u < 0.05 ? '' : (1 - S(2.2, 2.9)));
+    set('dia-copy-title', u < 0.05 ? '' : (1 - S(3.7, 4.4)));
     // Beats 3 and 4 only: copy sits on solid ground through the column, then blends into the screenshot.
-    // The ramp is fully clear by 47.5% — ahead of every annotated detail (modal rows ~48%, 4B's line
+    // The ramp is fully clear by 58% — ahead of every annotated detail (modal rows ~48%, 4B's line
     // items ~48%, the chat panel 62%+) so the fade never falls on UI the copy is pointing at.
-    set('dia-veil', win(15.4, 16.2, 27.0, 27.8));
+    set('dia-veil', win(16.9, 17.7, 28.5, 29.3));
 
-    set('dia-b1', win(2.9, 3.5, 8.9, 9.4));
-    set('dia-b1-s1', win(3.1, 3.7, 4.9, 5.4));
-    set('dia-b1-s2', win(5.3, 5.9, 7.0, 7.5));
-    set('dia-b1-s3', win(7.4, 8.0, 8.9, 9.4));
+    set('dia-b1', win(4.4, 5.0, 10.4, 10.9));
+    set('dia-b1-s1', win(4.6, 5.2, 6.4, 6.9));
+    set('dia-b1-s2', win(6.8, 7.4, 8.5, 9.0));
+    set('dia-b1-s3', win(8.9, 9.5, 10.4, 10.9));
 
-    // Beat 2 holds on the pulled-back frame (9.0-10.4 zoom-out, then a beat of air) before 2.1 arrives.
-    set('dia-b2', win(10.2, 10.8, 15.2, 15.8));
-    set('dia-b2-s1', win(10.6, 11.2, 12.1, 12.6));
-    set('dia-b2-s2', win(12.5, 13.0, 13.6, 14.1));
-    const s3 = win(14.0, 14.5, 15.2, 15.8);
+    // Beat 2 holds on the pulled-back frame (10.5-11.9 zoom-out, then a beat of air) before 2.1 arrives.
+    set('dia-b2', win(11.7, 12.3, 16.7, 17.3));
+    set('dia-b2-s1', win(12.1, 12.7, 13.6, 14.1));
+    set('dia-b2-s2', win(14.0, 14.5, 15.1, 15.6));
+    const s3 = win(15.5, 16.0, 16.7, 17.3);
     set('dia-b2-s3', s3);
     // Opacity alone still hit-tests, so the CTA's clickability is gated on 2.3 being on screen.
     let cta = this._n['dia-b2-cta'];
     if (!cta || !cta.isConnected) cta = this._n['dia-b2-cta'] = document.getElementById('dia-b2-cta');
     if (cta) cta.style.pointerEvents = s3 > 0.5 ? 'auto' : 'none';
 
-    set('dia-b3', win(15.7, 16.3, 22.6, 23.2));
-    set('dia-b3-p1', win(15.9, 16.5, 17.6, 18.1));
-    set('dia-b3-p2', win(18.0, 18.5, 19.3, 19.8));
-    set('dia-b3-p3', win(19.7, 20.3, 21.2, 21.7));
-    set('dia-b3-p4', win(21.6, 22.1, 22.6, 23.2));
+    set('dia-b3', win(17.2, 17.8, 24.1, 24.7));
+    set('dia-b3-p1', win(17.4, 18.0, 19.1, 19.6));
+    set('dia-b3-p2', win(19.5, 20.0, 20.8, 21.3));
+    set('dia-b3-p3', win(21.2, 21.8, 22.7, 23.2));
+    set('dia-b3-p4', win(23.1, 23.6, 24.1, 24.7));
 
-    set('dia-b4', win(23.3, 23.9, 27.2, 27.8));
-    set('dia-b4-p1', win(23.5, 24.1, 25.4, 25.9));
-    set('dia-b4-p2', win(25.8, 26.4, 27.2, 27.8));
+    set('dia-b4', win(24.8, 25.4, 28.7, 29.3));
+    set('dia-b4-p1', win(25.0, 25.6, 26.9, 27.4));
+    set('dia-b4-p2', win(27.3, 27.9, 28.7, 29.3));
 
-    set('dia-copy-close', S(27.9, 28.4));
-    set('dia-close-l1', S(27.9, 28.4));
-    set('dia-close-l2', S(28.2, 28.7));
-    set('dia-close-l3', S(28.5, 29.0));
+    set('dia-copy-close', S(29.4, 29.9));
+    set('dia-close-l1', S(29.4, 29.9));
+    set('dia-close-l2', S(29.7, 30.2));
+    set('dia-close-l3', S(30.0, 30.5));
   }
 
   renderVals() { return {}; }
