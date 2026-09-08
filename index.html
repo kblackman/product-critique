@@ -136,13 +136,13 @@
   .tab {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0;
     padding: 7px 8px;
     border-radius: var(--radius-md);
     cursor: grab;
     position: relative;
     border: 1px solid transparent;
-    transition: background 0.12s ease, border-color 0.12s ease;
+    transition: background 0.12s ease, border-color 0.12s ease, gap 0.14s ease, padding 0.14s ease;
   }
 
   .tab:hover { background: var(--line-soft); }
@@ -159,22 +159,60 @@
 
   .tab.dragging { opacity: 0.35; }
 
-  .tab.drop-target {
-    background: var(--accent-soft);
-    border-color: var(--accent-soft-line);
+  .tab-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    order: 1;
+    border-radius: calc(var(--radius-md) - 2px);
+    transition: background 0.14s ease, padding 0.14s ease;
   }
 
-  .tab.drop-target::before {
-    content: "";
-    position: absolute;
-    top: 3px;
-    bottom: 3px;
-    width: 3px;
-    border-radius: 2px;
-    background: var(--accent);
+  .tab-drop-half {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 0;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    order: 2;
+    border-radius: calc(var(--radius-md) - 2px);
+    border: 1.5px dashed transparent;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: flex 0.14s ease, opacity 0.1s ease;
   }
-  .tab.drop-target.drop-side-left::before { left: 1px; }
-  .tab.drop-target.drop-side-right::before { right: 1px; }
+  .tab-drop-half svg { flex-shrink: 0; }
+  .tab-drop-label { overflow: hidden; text-overflow: ellipsis; }
+
+  .tab.drop-target {
+    padding: 4px;
+    gap: 6px;
+    background: var(--chrome-raised);
+    border-color: var(--line);
+  }
+  .tab.drop-target .tab-main {
+    flex: 1 1 0;
+    background: var(--line-soft);
+    padding: 5px 8px;
+  }
+  .tab.drop-target .tab-drop-half {
+    flex: 1 1 0;
+    width: auto;
+    opacity: 1;
+    padding: 5px 8px;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .tab.drop-target.drop-side-left .tab-drop-half { order: 0; }
+  .tab.drop-target.drop-side-right .tab-drop-half { order: 2; }
 
   .tab-split {
     padding: 4px;
@@ -716,9 +754,20 @@
       name.className = "tab-name";
       name.textContent = tab.name;
 
-      row.appendChild(check);
-      row.appendChild(fav);
-      row.appendChild(name);
+      var main = document.createElement("div");
+      main.className = "tab-main";
+      main.appendChild(check);
+      main.appendChild(fav);
+      main.appendChild(name);
+
+      var dropHalf = document.createElement("div");
+      dropHalf.className = "tab-drop-half";
+      dropHalf.innerHTML =
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
+        '<span class="tab-drop-label">Add split</span>';
+
+      row.appendChild(main);
+      row.appendChild(dropHalf);
 
       row.addEventListener("click", function (e) {
         if (state.selected.size > 0) {
@@ -971,6 +1020,8 @@
       var rowRect = rowEl.getBoundingClientRect();
       var rowSide = (x - rowRect.left) / rowRect.width < 0.5 ? "left" : "right";
       rowEl.classList.add("drop-target", rowSide === "left" ? "drop-side-left" : "drop-side-right");
+      var label = rowEl.querySelector(".tab-drop-label");
+      if (label) label.textContent = rowSide === "left" ? "Add left split" : "Add right split";
       drag.overRow = rowEl;
       drag.side = rowSide;
       clearDropOverlay();
