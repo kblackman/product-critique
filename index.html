@@ -249,7 +249,7 @@ class Component extends DCLogic {
     window.__diaSeek = (u) => { this._seek = u; this._last = null; };
 
     // Optional keyboard walkthrough: one sub-moment per press, eased at a presentation pace.
-    this.STOPS = [0, 4.3, 6.6, 8.7, 11.2, 13.0, 14.6, 16.6, 18.5, 20.95, 22.6, 24.2, 26.4, 29.0];
+    this.STOPS = [0, 5.8, 8.1, 10.2, 12.7, 14.5, 16.1, 18.1, 20.0, 22.45, 24.1, 25.7, 27.9, 30.5];
     this._stop = 0;
     this.onKey = (e) => {
       const fwd = ['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Spacebar'].indexOf(e.key) > -1;
