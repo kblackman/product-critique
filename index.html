@@ -479,14 +479,14 @@ class Component extends DCLogic {
     set('dia-frame-scrim', Math.max(1 - S(1.6, 4.5), S(28.3, 29.3)));
 
     set('dia-hint', u > 0.15 ? 0 : '');
-    set('dia-copy-title', u < 0.05 ? '' : (1 - S(3.7, 4.4)));
+    set('dia-copy-title', u < 0.05 ? '' : (1 - S(4.5, 4.62)));
     // Beats 3 and 4 only: copy sits on solid ground through the column, then blends into the screenshot.
     // The ramp is fully clear by 58% — ahead of every annotated detail (modal rows ~48%, 4B's line
     // items ~48%, the chat panel 62%+) so the fade never falls on UI the copy is pointing at.
     set('dia-veil', win(16.9, 17.7, 28.5, 29.3));
 
-    set('dia-b1', win(3.7, 4.4, 10.4, 10.9));
-    set('dia-b1-s1', win(3.9, 4.6, 6.4, 6.9));
+    set('dia-b1', win(4.5, 4.62, 10.4, 10.9));
+    set('dia-b1-s1', win(4.62, 4.9, 6.4, 6.9));
     set('dia-b1-s2', win(6.8, 7.4, 8.5, 9.0));
     set('dia-b1-s3', win(8.9, 9.5, 10.4, 10.9));
 
