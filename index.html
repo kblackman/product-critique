@@ -170,9 +170,9 @@
   <div id="dia-copy-close" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(94vw, 1200px); display: flex; flex-direction: column; align-items: center; gap: 28px; opacity: 0">
     <img id="dia-close-mark" src="assets/dia-mark.png" alt="" style="width: 115px; height: 115px; display: block; opacity: 0" />
     <h2 style="margin: 0; text-align: center; font-weight: 400; font-size: 40px; line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
-      <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap">None of this is new.</span>
-      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap">Other browsers did it first.</span>
-      <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.2em; letter-spacing: -0.028em; white-space: nowrap">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
+      <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">None of this is new.</span>
+      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers did it first.</span>
+      <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.2em; letter-spacing: -0.028em; white-space: nowrap; opacity: 0">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
     </h2>
   </div>
 
@@ -304,6 +304,7 @@ class Component extends DCLogic {
     cancelAnimationFrame(this._raf);
     cancelAnimationFrame(this._glide);
     (this._it || []).forEach(clearTimeout);
+    (this._closeTimers || []).forEach(clearTimeout);
     window.removeEventListener('resize', this.introFit);
     window.removeEventListener('keydown', this.onKey);
     document.removeEventListener('keydown', this.onKey);
@@ -565,13 +566,48 @@ class Component extends DCLogic {
     set('dia-b4-p1', win(25.0, 25.6, 26.9, 27.4));
     set('dia-b4-p2', win(27.3, 27.9, 28.7, 29.3));
 
-    // Slow, deliberate sequence: mark alone, then each line in turn, each starting as the
-    // previous is most of the way in rather than waiting for a full stop-start cadence.
-    set('dia-copy-close', u < 29.3 ? 0 : 1);
-    set('dia-close-mark', S(29.4, 30.0));
-    set('dia-close-l1', S(29.8, 30.4));
-    set('dia-close-l2', S(30.3, 30.9));
-    set('dia-close-l3', S(30.8, 31.4));
+    // The close reveal is timer-driven, not scroll-position-driven — see playCloseReveal().
+    // A scroll-linked fade here would be capped by however fast the user scrolled (or, via
+    // arrow keys, by glide()'s hard 3.2s cap), which can't fit a real ~1s-per-line pace no
+    // matter how the u-ranges are spaced. Crossing into the close just triggers it once.
+    if (u >= 29.3) {
+      if (!this._closeRevealed) { this._closeRevealed = true; this.playCloseReveal(); }
+    } else if (this._closeRevealed) {
+      this._closeRevealed = false;
+      (this._closeTimers || []).forEach(clearTimeout);
+      const wrap = document.getElementById('dia-copy-close');
+      if (wrap) wrap.style.opacity = 0;
+      ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) { el.style.transition = 'none'; el.style.opacity = 0; }
+      });
+    }
+  }
+
+  // Fires once when u first crosses into the close. Mark, then each line in turn, roughly a
+  // second apart — a real-time pace independent of scroll speed or glide duration.
+  playCloseReveal() {
+    const wrap = document.getElementById('dia-copy-close');
+    if (wrap) wrap.style.opacity = 1;
+    this._closeTimers = [];
+    // Defensively force-hidden before scheduling reveals, rather than trusting each element's
+    // HTML default — an unset opacity here silently skips the whole stagger.
+    ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) { el.style.transition = 'none'; el.style.opacity = 0; }
+    });
+    const reveal = (id, delay) => {
+      this._closeTimers.push(setTimeout(() => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.transition = 'opacity 700ms ease-out';
+        el.style.opacity = 1;
+      }, delay));
+    };
+    reveal('dia-close-mark', 50);
+    reveal('dia-close-l1', 1000);
+    reveal('dia-close-l2', 1950);
+    reveal('dia-close-l3', 2900);
   }
 
   renderVals() { return {}; }
