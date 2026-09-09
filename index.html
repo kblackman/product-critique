@@ -35,12 +35,22 @@
       <img id="dia-l-chat" src="assets/chat-in-action.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
       <img id="dia-l-nt1" src="assets/newtab-1.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
       <img id="dia-l-nt2" src="assets/newtab-2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
-      <img id="dia-l-brief" src="assets/brief.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0" />
+      <!-- Grouped so the two fade as ONE flattened unit (see set('dia-brief-group', ...)) rather
+           than two independently-faded layers. Faded separately, a semi-transparent
+           dia-brief-view lets dia-l-brief's different (unscrolled) content show through
+           underneath in the content-pane area — a visible ghosting/ghost-image artifact during
+           the crossfade to the close. A shared-opacity parent forces the browser to composite
+           dia-brief-view fully opaque over dia-l-brief first, then fade the correct combined
+           result as a whole, eliminating the mismatch instead of just retiming it. -->
+      <div id="dia-brief-group" style="position: absolute; inset: 0; opacity: 0">
+        <img id="dia-l-brief" src="assets/brief.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block" />
 
-      <!-- The brief's full page, masked to the browser's viewport chrome and scrolled internally through
-           beat 4 so more of the brief reveals as the reader scrolls, the way a real window would. -->
-      <div id="dia-brief-view" style="position: absolute; left: 13%; top: 6.1%; width: 84.4%; height: 89.3%; overflow: hidden; background: #F3F3F1; opacity: 0">
-        <img id="dia-brief-scroll" src="assets/brief-full.png" alt="" style="position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; will-change: transform" />
+        <!-- The brief's full page, masked to the browser's viewport chrome and scrolled internally
+             through beat 4 so more of the brief reveals as the reader scrolls, the way a real
+             window would. -->
+        <div id="dia-brief-view" style="position: absolute; left: 13%; top: 6.1%; width: 84.4%; height: 89.3%; overflow: hidden; background: #F3F3F1">
+          <img id="dia-brief-scroll" src="assets/brief-full.png" alt="" style="position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; will-change: transform" />
+        </div>
       </div>
 
       <div id="dia-c1a" style="position: absolute; left: 1.2%; top: 2.2%; width: 12.6%; height: 11.5%; opacity: 0">
@@ -174,6 +184,7 @@
       <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers did it first.</span>
       <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.2em; letter-spacing: -0.028em; white-space: nowrap; opacity: 0">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
     </h2>
+    <a id="dia-close-cta" href="https://www.kyleblackman.com/design-philosophy" target="_blank" rel="noopener" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; text-decoration: none; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">My design philosophy<span style="font-size: 1.1em; line-height: 1">↗</span></a>
   </div>
 
   <!-- Persistent brand pill: independent of the one-time intro below, and a separate element
@@ -514,8 +525,12 @@ class Component extends DCLogic {
     set('dia-l-chat', win(16.7, 17.3, 20.9, 21.5));
     set('dia-l-nt1', win(20.9, 21.5, 22.7, 23.3));
     set('dia-l-nt2', win(22.7, 23.3, 24.1, 24.7));
-    set('dia-l-brief', win(24.1, 24.7, 28.5, 29.1));
-    set('dia-brief-view', win(24.4, 25.0, 28.5, 29.1));
+    // Group fade (not two independently-timed layers) — see the dia-brief-group comment in the
+    // markup for why. Widened and pushed to end at 29.4, alongside dia-b4-p2 below, so the image
+    // and the beat's last text fade out together as one beat rather than in a staggered, jumpy
+    // sequence, overlapping into the close's own reveal (triggers at 29.3) for a smooth handoff
+    // instead of a hard cut to black in between.
+    set('dia-brief-group', win(24.25, 24.85, 28.5, 29.4));
 
     // The brief page scrolls inside its mask once 4A has settled — the reveal is the page moving, not the camera.
     let bs = this._n['dia-brief-scroll'];
@@ -564,7 +579,7 @@ class Component extends DCLogic {
 
     set('dia-b4', win(24.8, 25.4, 28.7, 29.3));
     set('dia-b4-p1', win(25.0, 25.6, 26.9, 27.4));
-    set('dia-b4-p2', win(27.3, 27.9, 28.7, 29.3));
+    set('dia-b4-p2', win(27.3, 27.9, 28.5, 29.4));
 
     // The close reveal is timer-driven, not scroll-position-driven — see playCloseReveal().
     // A scroll-linked fade here would be capped by however fast the user scrolled (or, via
@@ -577,9 +592,9 @@ class Component extends DCLogic {
       (this._closeTimers || []).forEach(clearTimeout);
       const wrap = document.getElementById('dia-copy-close');
       if (wrap) wrap.style.opacity = 0;
-      ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3'].forEach((id) => {
+      ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3', 'dia-close-cta'].forEach((id) => {
         const el = document.getElementById(id);
-        if (el) { el.style.transition = 'none'; el.style.opacity = 0; }
+        if (el) { el.style.transition = 'none'; el.style.opacity = 0; if (el.tagName === 'A') el.style.pointerEvents = 'none'; }
       });
     }
   }
@@ -592,9 +607,9 @@ class Component extends DCLogic {
     this._closeTimers = [];
     // Defensively force-hidden before scheduling reveals, rather than trusting each element's
     // HTML default — an unset opacity here silently skips the whole stagger.
-    ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3'].forEach((id) => {
+    ['dia-close-mark', 'dia-close-l1', 'dia-close-l2', 'dia-close-l3', 'dia-close-cta'].forEach((id) => {
       const el = document.getElementById(id);
-      if (el) { el.style.transition = 'none'; el.style.opacity = 0; }
+      if (el) { el.style.transition = 'none'; el.style.opacity = 0; if (el.tagName === 'A') el.style.pointerEvents = 'none'; }
     });
     const reveal = (id, delay) => {
       this._closeTimers.push(setTimeout(() => {
@@ -602,12 +617,15 @@ class Component extends DCLogic {
         if (!el) return;
         el.style.transition = 'opacity 700ms ease-out';
         el.style.opacity = 1;
+        if (el.tagName === 'A') el.style.pointerEvents = 'auto';
       }, delay));
     };
     reveal('dia-close-mark', 50);
     reveal('dia-close-l1', 1000);
     reveal('dia-close-l2', 1950);
     reveal('dia-close-l3', 2900);
+    // CTA animates in last, once everything else has landed.
+    reveal('dia-close-cta', 3850);
   }
 
   renderVals() { return {}; }
