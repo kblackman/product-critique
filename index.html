@@ -163,19 +163,24 @@
 
   </div>
 
-  <div id="dia-copy-close" style="position: absolute; left: 50%; top: 64%; transform: translate(-50%,-50%); width: min(94vw, 1200px); text-align: center; opacity: 0">
-    <h2 style="margin: 0; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
-      <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">None of this is new.</span>
-      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers did it first.</span>
-      <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.06em; letter-spacing: -0.028em; white-space: nowrap; opacity: 0">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
+  <!-- Close: mark-only (no wordmark) and text as normal flex-column siblings with a fixed gap —
+       deterministic spacing, no viewport-relative offset math to get wrong. The mark is its own
+       dedicated element at its real display size (not a transform-scaled-up copy of the tiny
+       persistent pill's 19px image, which is what caused it to render blurry). -->
+  <div id="dia-copy-close" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(94vw, 1200px); display: flex; flex-direction: column; align-items: center; gap: 28px; opacity: 0">
+    <img id="dia-close-mark" src="assets/dia-mark.png" alt="" style="width: 64px; height: 64px; display: block" />
+    <h2 style="margin: 0; text-align: center; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
+      <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap">None of this is new.</span>
+      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap">Other browsers did it first.</span>
+      <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.06em; letter-spacing: -0.028em; white-space: nowrap">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
     </h2>
   </div>
 
   <!-- Persistent brand pill: independent of the one-time intro below, and a separate element
        from it (different ids on purpose — dia-brand below is the one-time animated piece).
-       Fades in once beat 1 begins and stays through the whole piece. Grows back to a large
-       centered lockup during the close, driven by u in tick() — see the dia-persist transform
-       block near the end. -->
+       Fades in once beat 1 begins and stays small and top-center for the rest of the piece,
+       including through the close, which uses its own dedicated #dia-close-mark instead of
+       growing this element. -->
   <div id="dia-persist" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 0%; will-change: transform; pointer-events: none; opacity: 0">
     <div id="dia-persist-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)">
       <img id="dia-persist-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block" />
@@ -261,7 +266,7 @@ class Component extends DCLogic {
     window.__diaSeek = (u) => { this._seek = u; this._last = null; };
 
     // Optional keyboard walkthrough: one sub-moment per press, eased at a presentation pace.
-    this.STOPS = [0, 5.8, 8.1, 10.2, 12.7, 14.5, 16.1, 18.1, 20.0, 22.45, 24.1, 25.7, 27.9, 30.5];
+    this.STOPS = [0, 8.1, 10.2, 12.7, 14.5, 16.1, 18.1, 20.0, 22.45, 24.1, 25.7, 27.9, 30.5];
     this._stop = 0;
     this.onKey = (e) => {
       const fwd = ['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Spacebar'].indexOf(e.key) > -1;
@@ -565,18 +570,6 @@ class Component extends DCLogic {
     set('dia-close-l1', S(29.4, 29.9));
     set('dia-close-l2', S(29.7, 30.2));
     set('dia-close-l3', S(30.0, 30.5));
-
-    // Close: the persistent pill reverses its entrance, growing back into a large centered
-    // lockup as the browser (already faded via dia-l-master above) drops out of frame. Reuses
-    // the same u-range as the close copy rather than introducing a new breakpoint.
-    const cp = S(29.4, 30.3);
-    let pill = this._n['dia-persist'];
-    if (!pill || !pill.isConnected) pill = this._n['dia-persist'] = document.getElementById('dia-persist');
-    if (pill) {
-      const scale = 1 + cp * 2.6;
-      const ty = cp * Math.max(0, window.innerHeight * 0.4 - 26 - (pill.offsetHeight || 34) * scale / 2);
-      pill.style.transform = 'translateX(-50%) translateY(' + ty.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')';
-    }
   }
 
   renderVals() { return {}; }
