@@ -392,6 +392,28 @@ class Component extends DCLogic {
       cta.style.opacity = 1;
       cta.style.pointerEvents = 'auto';
     }, 1150));
+
+    // TEMPORARY DEBUG — remove once positioning is confirmed. Logs real measured geometry
+    // instead of guessing from screenshots.
+    const logRects = (label) => {
+      const rb = this.brand.getBoundingClientRect();
+      const rm = this.bMark.getBoundingClientRect();
+      const rw = this.bWord.getBoundingClientRect();
+      const rs = document.getElementById('dia-intro-sub').getBoundingClientRect();
+      const rc = document.getElementById('dia-intro-cta').getBoundingClientRect();
+      console.log('[dia-debug ' + label + ']', {
+        innerHeight: window.innerHeight,
+        ty: this.ty, riseBy, zBase: this.zBase,
+        brand: { top: rb.top, bottom: rb.bottom, height: rb.height },
+        mark: { top: rm.top, bottom: rm.bottom, height: rm.height },
+        word: { top: rw.top, bottom: rw.bottom, height: rw.height },
+        sub: { top: rs.top, bottom: rs.bottom, height: rs.height },
+        cta: { top: rc.top, bottom: rc.bottom, height: rc.height },
+      });
+    };
+    this.brand.addEventListener('transitionend', () => logRects('transitionend'), { once: true });
+    this._it.push(setTimeout(() => logRects('t+1500'), 1500));
+    this._it.push(setTimeout(() => logRects('t+3000'), 3000));
   }
 
   // The one presenter-triggered moment in the piece.
