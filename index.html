@@ -168,7 +168,7 @@
        dedicated element at its real display size (not a transform-scaled-up copy of the tiny
        persistent pill's 19px image, which is what caused it to render blurry). -->
   <div id="dia-copy-close" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(94vw, 1200px); display: flex; flex-direction: column; align-items: center; gap: 28px; opacity: 0">
-    <img id="dia-close-mark" src="assets/dia-mark.png" alt="" style="width: 115px; height: 115px; display: block" />
+    <img id="dia-close-mark" src="assets/dia-mark.png" alt="" style="width: 115px; height: 115px; display: block; opacity: 0" />
     <h2 style="margin: 0; text-align: center; font-weight: 400; font-size: 40px; line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
       <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap">None of this is new.</span>
       <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap">Other browsers did it first.</span>
@@ -215,7 +215,7 @@
 
 </div>
 
-<div id="dia-spacer" style="height: 3576vh; pointer-events: none"></div>
+<div id="dia-spacer" style="height: 3682vh; pointer-events: none"></div>
 ]]>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{}">
@@ -245,9 +245,11 @@ class Component extends DCLogic {
       [24.7,  0, 0.66, 0.500, 0.400, 0.690, 0.50],
       [25.9,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
       [26.6,  0, 0.62, 0.500, 0.500, 0.700, 0.50],
-      [30.5,  0, 0.62, 0.500, 0.500, 0.700, 0.50]
+      [27.7,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [28.4,  0, 1.05, 0.500, 0.500, 0.500, 0.50],
+      [31.4,  0, 1.05, 0.500, 0.500, 0.500, 0.50]
     ];
-    this.TOTAL = 30.5;
+    this.TOTAL = 31.4;
 
     // Scroll and arrow-nav stay fully locked until the presenter clicks the CTA. The opening
     // sequence itself is pure timers/CSS transitions — it never reads or writes u, so there is
@@ -263,7 +265,7 @@ class Component extends DCLogic {
     window.__diaSeek = (u) => { this._seek = u; this._last = null; };
 
     // Optional keyboard walkthrough: one sub-moment per press, eased at a presentation pace.
-    this.STOPS = [0, 8.1, 10.2, 12.7, 14.5, 16.1, 18.1, 20.0, 22.45, 24.1, 25.7, 27.9, 30.5];
+    this.STOPS = [0, 8.1, 10.2, 12.7, 14.5, 16.1, 18.1, 20.0, 22.45, 24.1, 25.7, 27.9, 31.4];
     this._stop = 0;
     this.onKey = (e) => {
       const fwd = ['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Spacebar'].indexOf(e.key) > -1;
@@ -563,10 +565,13 @@ class Component extends DCLogic {
     set('dia-b4-p1', win(25.0, 25.6, 26.9, 27.4));
     set('dia-b4-p2', win(27.3, 27.9, 28.7, 29.3));
 
-    set('dia-copy-close', S(29.4, 29.9));
-    set('dia-close-l1', S(29.4, 29.9));
-    set('dia-close-l2', S(29.7, 30.2));
-    set('dia-close-l3', S(30.0, 30.5));
+    // Slow, deliberate sequence: mark alone, then each line in turn, each starting as the
+    // previous is most of the way in rather than waiting for a full stop-start cadence.
+    set('dia-copy-close', u < 29.3 ? 0 : 1);
+    set('dia-close-mark', S(29.4, 30.0));
+    set('dia-close-l1', S(29.8, 30.4));
+    set('dia-close-l2', S(30.3, 30.9));
+    set('dia-close-l3', S(30.8, 31.4));
   }
 
   renderVals() { return {}; }
