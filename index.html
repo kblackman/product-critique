@@ -195,8 +195,8 @@
         <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block; opacity: 0; clip-path: inset(-8% 100% -8% -2%)" />
       </div>
     </div>
-    <div id="dia-intro-sub" style="position: absolute; left: 50%; top: calc(50% - 20px); transform: translateX(-50%); text-align: center; font-weight: 400; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.01em; color: #B8B8BF; opacity: 0">a critique</div>
-    <button id="dia-intro-cta" style="position: absolute; left: 50%; top: calc(50% + 120px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Let's get into it</button>
+    <div id="dia-intro-sub" style="position: absolute; left: 50%; top: calc(50% - 1px); transform: translateX(-50%); text-align: center; font-weight: 400; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.01em; color: #B8B8BF; opacity: 0">a critique</div>
+    <button id="dia-intro-cta" style="position: absolute; left: 50%; top: calc(50% + 140px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Let's get into it</button>
   </div>
 
   <div id="dia-badge" style="position: absolute; right: 40px; bottom: 34px; display: flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0">
@@ -392,28 +392,6 @@ class Component extends DCLogic {
       cta.style.opacity = 1;
       cta.style.pointerEvents = 'auto';
     }, 1150));
-
-    // TEMPORARY DEBUG — remove once positioning is confirmed. Logs real measured geometry
-    // instead of guessing from screenshots.
-    const logRects = (label) => {
-      const rb = this.brand.getBoundingClientRect();
-      const rm = this.bMark.getBoundingClientRect();
-      const rw = this.bWord.getBoundingClientRect();
-      const rs = document.getElementById('dia-intro-sub').getBoundingClientRect();
-      const rc = document.getElementById('dia-intro-cta').getBoundingClientRect();
-      console.log('[dia-debug ' + label + ']', {
-        innerHeight: window.innerHeight,
-        ty: this.ty, riseBy, zBase: this.zBase,
-        brand: { top: rb.top, bottom: rb.bottom, height: rb.height },
-        mark: { top: rm.top, bottom: rm.bottom, height: rm.height },
-        word: { top: rw.top, bottom: rw.bottom, height: rw.height },
-        sub: { top: rs.top, bottom: rs.bottom, height: rs.height },
-        cta: { top: rc.top, bottom: rc.bottom, height: rc.height },
-      });
-    };
-    this.brand.addEventListener('transitionend', () => logRects('transitionend'), { once: true });
-    this._it.push(setTimeout(() => logRects('t+1500'), 1500));
-    this._it.push(setTimeout(() => logRects('t+3000'), 3000));
   }
 
   // The one presenter-triggered moment in the piece.
