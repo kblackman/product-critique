@@ -171,26 +171,32 @@
     </h2>
   </div>
 
-  <!-- Persistent brand pill: independent of the one-time intro below. Fades in once beat 1
-       begins and stays through the whole piece. Grows back to a large centered lockup during
-       the close, driven by u in tick() — see the dia-brand transform block near the end. -->
-  <div id="dia-brand" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 0%; will-change: transform; pointer-events: none; opacity: 0">
-    <div id="dia-brand-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)">
-      <img id="dia-brand-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block" />
-      <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block" />
+  <!-- Persistent brand pill: independent of the one-time intro below, and a separate element
+       from it (different ids on purpose — dia-brand below is the one-time animated piece).
+       Fades in once beat 1 begins and stays through the whole piece. Grows back to a large
+       centered lockup during the close, driven by u in tick() — see the dia-persist transform
+       block near the end. -->
+  <div id="dia-persist" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 0%; will-change: transform; pointer-events: none; opacity: 0">
+    <div id="dia-persist-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)">
+      <img id="dia-persist-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block" />
+      <img id="dia-persist-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block" />
     </div>
   </div>
 
   <!-- One-time opening sequence: automatic on load, not scroll/arrow-linked. The CTA click
-       dismisses this and hands off into beat 1 (see startBeat1() in the script below). This is
-       a separate element from the persistent pill above — nothing here sticks around. -->
-  <div id="dia-intro" style="position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #272727">
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 14px">
-      <img id="dia-intro-mark" src="assets/dia-mark.png" alt="" style="width: 56px; height: 56px; display: block; opacity: 0; transform: scale(0.95)" />
-      <img id="dia-intro-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 34px; display: block; opacity: 0" />
+       dismisses this and hands off into beat 1 (see onCtaClick()/startBeat1() below). dia-brand
+       here plays large at screen center, holds, then rises slightly to open room for "a critique"
+       and the CTA button below it — it never docks into a small pill; that's dia-persist's job,
+       as a wholly separate element that fades in on its own once beat 1 starts. -->
+  <div id="dia-intro" style="position: fixed; inset: 0; z-index: 50; background: #272727">
+    <div id="dia-brand" style="position: absolute; left: 50%; top: 26px; transform: translateX(-50%); transform-origin: 50% 50%; will-change: transform; pointer-events: none">
+      <div id="dia-brand-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0)">
+        <img id="dia-brand-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block; opacity: 0" />
+        <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block; opacity: 0; clip-path: inset(-8% 100% -8% -2%)" />
+      </div>
     </div>
-    <div id="dia-intro-sub" style="font-size: 15px; letter-spacing: 0.02em; color: #9E9EA6; opacity: 0">a critique</div>
-    <button id="dia-intro-cta" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">start critique</button>
+    <div id="dia-intro-sub" style="position: absolute; left: 50%; top: calc(50% + 26px); transform: translateX(-50%); text-align: center; font-size: 15px; letter-spacing: 0.02em; color: #9E9EA6; opacity: 0">a critique</div>
+    <button id="dia-intro-cta" style="position: absolute; left: 50%; top: calc(50% + 78px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Let's get into it</button>
   </div>
 
   <div id="dia-badge" style="position: absolute; right: 40px; bottom: 34px; display: flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0">
@@ -249,7 +255,7 @@ class Component extends DCLogic {
     html.style.overflow = 'hidden';
     window.scrollTo(0, 0);
     this.introDone = false;
-    this.introSequence();
+    this.introSetup();
 
     // Refinement helper: window.__diaSeek(u) parks the timeline at a beat unit (0–23); null resumes scroll.
     window.__diaSeek = (u) => { this._seek = u; this._last = null; };
@@ -294,6 +300,7 @@ class Component extends DCLogic {
     cancelAnimationFrame(this._raf);
     cancelAnimationFrame(this._glide);
     (this._it || []).forEach(clearTimeout);
+    window.removeEventListener('resize', this.introFit);
     window.removeEventListener('keydown', this.onKey);
     document.removeEventListener('keydown', this.onKey);
     document.removeEventListener('pointerdown', this.onDown);
@@ -301,37 +308,89 @@ class Component extends DCLogic {
   }
 
   /* ---- Opening sequence --------------------------------------------------
-     Pure timers and CSS transitions on the one-time #dia-intro piece — this
-     never reads or writes u/KF/win()/STOPS. The only contract with the beat
-     timeline downstream is startBeat1()'s scrollTo(0) + introDone flip at
-     the very end, so there is nothing here that can drift out of sync with
-     the scroll-driven system the way STOPS once did. */
-  introSequence() {
-    this._it = [];
-    const t = (ms, fn) => this._it.push(setTimeout(fn, ms));
-    const mark = document.getElementById('dia-intro-mark');
-    const word = document.getElementById('dia-intro-word');
-    const sub = document.getElementById('dia-intro-sub');
-    const cta = document.getElementById('dia-intro-cta');
-    this._introEls = { mark, word, sub, cta };
+     Steps 0-4 below (mark scales/fades in, holds, wordmark wipes in via
+     clip-path to join it) are the original logomark/wordmark animation,
+     restored verbatim. The only structural change from the original: it
+     used to end by docking (shrinking) into the persistent top pill.
+     Now it ends with riseUp() instead — the same lockup rising slightly as
+     a single unit, without shrinking or taking on pill styling — opening
+     room below it for "a critique" and the CTA button. The persistent pill
+     (#dia-persist) is a wholly separate element that fades in on its own
+     once beat 1 starts; nothing here docks into it.
+     None of this reads or writes u/KF/win()/STOPS — the only contract with
+     the beat timeline downstream is startBeat1()'s scrollTo(0) + introDone
+     flip at the very end, so nothing here can drift out of sync with the
+     scroll-driven system the way STOPS once did. */
+  MARK_INTRO = 146;
 
-    // Hold on the empty background, then the logomark fades and scales in (95% to 100%, eased out).
-    t(500, () => {
-      mark.style.transition = 'opacity .75s cubic-bezier(.22,.61,.36,1), transform .75s cubic-bezier(.22,.61,.36,1)';
-      mark.style.opacity = 1;
-      mark.style.transform = 'scale(1)';
+  introSetup() {
+    this.brand = document.getElementById('dia-brand');
+    this.pill = document.getElementById('dia-brand-pill');
+    this.bMark = document.getElementById('dia-brand-mark');
+    this.bWord = document.getElementById('dia-brand-word');
+    if (!this.brand) { this.startBeat1(); return; }
+    this._it = [];
+    this.introFit = () => {
+      const m = this.bMark, p = this.pill;
+      this.zBase = this.MARK_INTRO / (m.offsetWidth || 19);
+      this.dx = (m.offsetLeft + m.offsetWidth / 2) - p.offsetWidth / 2;
+      this.ty = window.innerHeight / 2 - (26 + this.brand.offsetHeight / 2);
+      if (!this.introDone) this.applyIntro(this._istep || 0, true);
+    };
+    window.addEventListener('resize', this.introFit);
+    this.introFit();
+    // The wordmark contributes to the lockup's width, so the mark's offset from the pill's centre
+    // is only correct once both images have decoded — re-measure on each load.
+    [this.bMark, this.bWord].forEach((im) => {
+      if (!im.complete) im.addEventListener('load', this.introFit);
     });
-    // Mark holds alone for a beat, then the wordmark joins it — both visible together.
-    t(1600, () => { word.style.transition = 'opacity .5s ease-out'; word.style.opacity = 1; });
-    // "a critique" fades in below the lockup.
-    t(2300, () => { sub.style.transition = 'opacity .6s ease-out'; sub.style.opacity = 1; });
-    // CTA appears. No auto-advance from here — the presenter clicks when ready.
-    t(2900, () => {
+    this.applyIntro(0, true);
+    const t = (ms, fn) => this._it.push(setTimeout(fn, ms));
+    t(1050, () => { this.introFit(); this.bMark.style.transition = 'opacity .55s ease-out'; this.bMark.style.opacity = 1; this.applyIntro(1); });
+    t(1830, () => this.applyIntro(2));
+    t(2190, () => this.applyIntro(3));
+    t(2830, () => this.applyIntro(4));
+    t(4900, () => this.riseUp());
+
+    document.getElementById('dia-intro-cta').addEventListener('click', () => this.onCtaClick(), { once: true });
+  }
+
+  applyIntro(step, immediate) {
+    this._istep = step;
+    const z = step >= 3 ? 1 : step >= 2 ? 0.92 : step >= 1 ? 1.85 : 1.58;
+    const Z = this.zBase * z;
+    const off = step >= 4 ? 0 : -this.dx * Z;
+    const dur = step >= 4 ? '1.05s' : step === 3 ? '.62s' : step === 2 ? '.36s' : '.62s';
+    const ease = step < 2 ? 'cubic-bezier(.25,.62,.3,1)'
+      : step === 2 ? 'cubic-bezier(.7,.02,.95,.42)'
+      : step === 3 ? 'cubic-bezier(.18,1.68,.5,1)' : 'cubic-bezier(.22,1,.36,1)';
+    this.brand.style.transition = immediate ? 'none' : 'transform ' + dur + ' ' + ease;
+    this.brand.style.transform = 'translate(-50%,' + this.ty.toFixed(1) + 'px) translateX(' +
+      off.toFixed(1) + 'px) scale(' + Z.toFixed(4) + ')';
+    if (step >= 4) {
+      this.bWord.style.transition = 'clip-path 1s cubic-bezier(.22,1,.36,1), opacity .7s ease-out';
+      this.bWord.style.clipPath = 'inset(-8% -4% -8% -2%)';
+      this.bWord.style.opacity = 1;
+    }
+  }
+
+  // Replaces the old dock(): the lockup rises as one unit, staying full size, no pill styling.
+  riseUp() {
+    if (this._risen) return;
+    this._risen = true;
+    const riseBy = 70;
+    this.brand.style.transition = 'transform 850ms cubic-bezier(.3,.9,.25,1)';
+    this.brand.style.transform = 'translate(-50%,' + (this.ty - riseBy).toFixed(1) + 'px) scale(1)';
+    this._it.push(setTimeout(() => {
+      const sub = document.getElementById('dia-intro-sub');
+      sub.style.transition = 'opacity .6s ease-out';
+      sub.style.opacity = 1;
+    }, 550));
+    this._it.push(setTimeout(() => {
+      const cta = document.getElementById('dia-intro-cta');
       cta.style.opacity = 1;
       cta.style.pointerEvents = 'auto';
-    });
-
-    cta.addEventListener('click', () => this.onCtaClick(), { once: true });
+    }, 1150));
   }
 
   // The one presenter-triggered moment in the piece.
@@ -339,7 +398,8 @@ class Component extends DCLogic {
     if (this._ctaClicked) return;
     this._ctaClicked = true;
     (this._it || []).forEach(clearTimeout);
-    const { mark, word, sub, cta } = this._introEls;
+    const sub = document.getElementById('dia-intro-sub');
+    const cta = document.getElementById('dia-intro-cta');
     cta.style.pointerEvents = 'none';
     cta.style.opacity = 0;
     sub.style.opacity = 0;
@@ -347,11 +407,11 @@ class Component extends DCLogic {
     // way an icon-shaped mark can, so it needs to be out of the way before the mark does anything
     // with the frame. Placeholder for now: the mark just fades too and we cut to beat 1. The real
     // wordmark-becomes-chrome expansion (or its rise-from-below fallback) is the next pass.
-    word.style.transition = 'opacity .2s ease-in';
-    word.style.opacity = 0;
+    this.bWord.style.transition = 'opacity .2s ease-in';
+    this.bWord.style.opacity = 0;
     setTimeout(() => {
-      mark.style.transition = 'opacity .3s ease-in';
-      mark.style.opacity = 0;
+      this.bMark.style.transition = 'opacity .3s ease-in';
+      this.bMark.style.opacity = 0;
     }, 150);
     setTimeout(() => this.startBeat1(), 480);
   }
@@ -365,7 +425,7 @@ class Component extends DCLogic {
     if (intro) intro.style.display = 'none';
     const A = (id, anim) => { const el = document.getElementById(id); if (el) el.style.animation = anim; };
     A('dia-frame-inner', 'diaRise 1.1s cubic-bezier(0.16,0.84,0.24,1) 0s forwards');
-    A('dia-brand', 'diaFadeIn 0.7s ease-out 0.2s forwards');
+    A('dia-persist', 'diaFadeIn 0.7s ease-out 0.2s forwards');
     A('dia-badge', 'diaFadeIn 0.9s ease-out 0.5s forwards');
     A('dia-hint-label', 'diaFadeIn 1s ease-out 1s forwards');
     window.scrollTo(0, 0);
@@ -509,8 +569,8 @@ class Component extends DCLogic {
     // lockup as the browser (already faded via dia-l-master above) drops out of frame. Reuses
     // the same u-range as the close copy rather than introducing a new breakpoint.
     const cp = S(29.4, 30.3);
-    let pill = this._n['dia-brand'];
-    if (!pill || !pill.isConnected) pill = this._n['dia-brand'] = document.getElementById('dia-brand');
+    let pill = this._n['dia-persist'];
+    if (!pill || !pill.isConnected) pill = this._n['dia-persist'] = document.getElementById('dia-persist');
     if (pill) {
       const scale = 1 + cp * 2.6;
       const ty = cp * Math.max(0, window.innerHeight * 0.4 - 26 - (pill.offsetHeight || 34) * scale / 2);
