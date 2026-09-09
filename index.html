@@ -195,8 +195,8 @@
         <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block; opacity: 0; clip-path: inset(-8% 100% -8% -2%)" />
       </div>
     </div>
-    <div id="dia-intro-sub" style="position: absolute; left: 50%; top: calc(50% + 26px); transform: translateX(-50%); text-align: center; font-size: 15px; letter-spacing: 0.02em; color: #9E9EA6; opacity: 0">a critique</div>
-    <button id="dia-intro-cta" style="position: absolute; left: 50%; top: calc(50% + 78px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Let's get into it</button>
+    <div id="dia-intro-sub" style="position: absolute; left: 50%; top: calc(50% + 34px); transform: translateX(-50%); text-align: center; font-weight: 400; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.01em; color: #B8B8BF; opacity: 0">a critique</div>
+    <button id="dia-intro-cta" style="position: absolute; left: 50%; top: calc(50% + 128px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">Let's get into it</button>
   </div>
 
   <div id="dia-badge" style="position: absolute; right: 40px; bottom: 34px; display: flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0">
@@ -374,13 +374,14 @@ class Component extends DCLogic {
     }
   }
 
-  // Replaces the old dock(): the lockup rises as one unit, staying full size, no pill styling.
+  // Replaces the old dock(): the lockup rises as one unit, staying at its settled full size
+  // (scale: this.zBase, the same scale applyIntro already landed on) — no shrink, no pill styling.
   riseUp() {
     if (this._risen) return;
     this._risen = true;
-    const riseBy = 70;
+    const riseBy = 110;
     this.brand.style.transition = 'transform 850ms cubic-bezier(.3,.9,.25,1)';
-    this.brand.style.transform = 'translate(-50%,' + (this.ty - riseBy).toFixed(1) + 'px) scale(1)';
+    this.brand.style.transform = 'translate(-50%,' + (this.ty - riseBy).toFixed(1) + 'px) scale(' + this.zBase.toFixed(4) + ')';
     this._it.push(setTimeout(() => {
       const sub = document.getElementById('dia-intro-sub');
       sub.style.transition = 'opacity .6s ease-out';
