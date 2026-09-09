@@ -581,6 +581,17 @@ class Component extends DCLogic {
     set('dia-b4-p1', win(25.0, 25.6, 26.9, 27.4));
     set('dia-b4-p2', win(27.3, 27.9, 28.5, 29.4));
 
+    // Persistent top-center pill fades out as the close comes in — it's redundant next to the
+    // close's own large mark. Gated on u>=2 so this never fights dia-persist's one-time CSS
+    // entrance animation (0.9s real time) right as beat 1 starts; past that point the animation
+    // has long since finished and JS opacity can safely take over.
+    let persist = this._n['dia-persist'];
+    if (!persist || !persist.isConnected) persist = this._n['dia-persist'] = document.getElementById('dia-persist');
+    if (persist && u >= 2) {
+      if (!this._persistManual) { this._persistManual = true; persist.style.animation = 'none'; }
+      persist.style.opacity = 1 - S(28.8, 29.4);
+    }
+
     // The close reveal is timer-driven, not scroll-position-driven — see playCloseReveal().
     // A scroll-linked fade here would be capped by however fast the user scrolled (or, via
     // arrow keys, by glide()'s hard 3.2s cap), which can't fit a real ~1s-per-line pace no
