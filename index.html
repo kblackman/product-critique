@@ -61,19 +61,10 @@
     </div>
   </div>
 
-  <div id="dia-frame-scrim" style="position: absolute; left: 0; right: 0; bottom: 0; height: 34vh; pointer-events: none; opacity: 0; background: linear-gradient(180deg, rgba(39,39,39,0) 0%, rgba(39,39,39,0.04) 18%, rgba(39,39,39,0.14) 33%, rgba(39,39,39,0.3) 46%, rgba(39,39,39,0.5) 58%, rgba(39,39,39,0.7) 70%, rgba(39,39,39,0.86) 80%, rgba(39,39,39,0.96) 90%, #272727 100%)"></div>
-
   <div id="dia-veil" style="position: absolute; inset: 0; opacity: 0; pointer-events: none; background: linear-gradient(90deg, #272727 0%, #272727 37.8%, rgba(39,39,39,0.92) 39.6%, rgba(39,39,39,0.79) 41.2%, rgba(39,39,39,0.61) 42.8%, rgba(39,39,39,0.41) 44.3%, rgba(39,39,39,0.23) 45.6%, rgba(39,39,39,0.1) 46.6%, rgba(39,39,39,0.03) 47.1%, rgba(39,39,39,0) 47.6%)"></div>
 
 
   <div style="position: absolute; left: 0; top: 0; right: 0; height: 130px; pointer-events: none; background: linear-gradient(180deg, rgba(24,25,33,0.9) 0%, rgba(24,25,33,0.62) 40%, rgba(24,25,33,0))"></div>
-
-  <div id="dia-copy-title" style="position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%); width: min(84vw, 980px); text-align: center">
-    <h1 id="dia-title-h1" style="margin: 0; font-family: Figtree, sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.1; letter-spacing: -0.025em; color: #D9D9DD; text-wrap: balance; opacity: 0">
-      <span style="display: block; color: #F5F5F7; font-size: 1.5em; line-height: 1.02; letter-spacing: -0.03em">A <span style="color: #FFC700">bold</span> new browser.</span>
-      <span style="display: block; margin-top: 0.5em; font-size: 0.56em; font-weight: 400; line-height: 1.24; letter-spacing: -0.005em; color: #A5A5AC">What works, what's missing, and why it matters.</span>
-    </h1>
-  </div>
 
   <div id="dia-beats" style="position: absolute; left: 6.5vw; top: 50%; transform: translateY(-50%); width: min(30vw, 440px); pointer-events: none">
 
@@ -172,21 +163,34 @@
 
   </div>
 
-  <div id="dia-copy-close" style="position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%); width: min(94vw, 1200px); text-align: center; opacity: 0">
+  <div id="dia-copy-close" style="position: absolute; left: 50%; top: 64%; transform: translate(-50%,-50%); width: min(94vw, 1200px); text-align: center; opacity: 0">
     <h2 style="margin: 0; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.18; letter-spacing: -0.02em; color: #F0F0F2">
       <span id="dia-close-l1" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">None of this is new.</span>
-      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers have done this before.</span>
+      <span id="dia-close-l2" style="display: block; font-weight: 400; white-space: nowrap; opacity: 0">Other browsers did it first.</span>
       <span id="dia-close-l3" style="display: block; margin-top: 0.5em; font-weight: 700; font-size: 1.06em; letter-spacing: -0.028em; white-space: nowrap; opacity: 0">Dia did it <span style="color: #FFC700; font-weight: 700">right.</span></span>
     </h2>
   </div>
 
-  <!-- Opening logo animation and the piece's persistent Dia mark are the same element: it plays
-       large at screen center, pauses, then docks into this pill at the top of the frame. -->
-  <div id="dia-brand" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 50%; will-change: transform; pointer-events: none">
-    <div id="dia-brand-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0)">
-      <img id="dia-brand-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block; opacity: 0" />
-      <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block; opacity: 0; clip-path: inset(-8% 100% -8% -2%)" />
+  <!-- Persistent brand pill: independent of the one-time intro below. Fades in once beat 1
+       begins and stays through the whole piece. Grows back to a large centered lockup during
+       the close, driven by u in tick() — see the dia-brand transform block near the end. -->
+  <div id="dia-brand" style="position: absolute; left: 50%; top: 26px; z-index: 40; transform: translateX(-50%); transform-origin: 50% 0%; will-change: transform; pointer-events: none; opacity: 0">
+    <div id="dia-brand-pill" style="position: relative; display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)">
+      <img id="dia-brand-mark" src="assets/dia-mark.png" alt="" style="width: 19px; height: 19px; display: block" />
+      <img id="dia-brand-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 18px; display: block" />
     </div>
+  </div>
+
+  <!-- One-time opening sequence: automatic on load, not scroll/arrow-linked. The CTA click
+       dismisses this and hands off into beat 1 (see startBeat1() in the script below). This is
+       a separate element from the persistent pill above — nothing here sticks around. -->
+  <div id="dia-intro" style="position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #272727">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+      <img id="dia-intro-mark" src="assets/dia-mark.png" alt="" style="width: 56px; height: 56px; display: block; opacity: 0; transform: scale(0.95)" />
+      <img id="dia-intro-word" src="assets/dia-wordmark.png" alt="Dia" style="height: 34px; display: block; opacity: 0" />
+    </div>
+    <div id="dia-intro-sub" style="font-size: 15px; letter-spacing: 0.02em; color: #9E9EA6; opacity: 0">a critique</div>
+    <button id="dia-intro-cta" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border: 1px solid rgba(255,199,0,0.5); border-radius: 999px; background: transparent; color: #FFC700; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; opacity: 0; transition: background 180ms ease, border-color 180ms ease" style-hover="background: rgba(255,199,0,0.1); border-color: rgba(255,199,0,0.85)">start critique</button>
   </div>
 
   <div id="dia-badge" style="position: absolute; right: 40px; bottom: 34px; display: flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px; background: rgba(39,39,39,0.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0">
@@ -210,8 +214,8 @@ class Component extends DCLogic {
 
     // Camera keyframes: [at, rotateX, scale, focalX, focalY, anchorX, anchorY]
     this.KF = [
-      [0.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
-      [2.0,  22, 1.00, 0.500, 0.000, 0.50, 0.50],
+      [0.0,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
+      [2.0,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
       [4.7,   0, 1.50, 0.078, 0.255, 0.500, 0.50],
       [6.1,   0, 1.54, 0.078, 0.255, 0.500, 0.50],
       [7.3,   0, 2.20, 0.078, 0.080, 0.537, 0.40],
@@ -237,13 +241,15 @@ class Component extends DCLogic {
     ];
     this.TOTAL = 30.5;
 
-    // Scroll is locked until the opening logo sequence has docked and the title has landed.
+    // Scroll and arrow-nav stay fully locked until the presenter clicks the CTA. The opening
+    // sequence itself is pure timers/CSS transitions — it never reads or writes u, so there is
+    // nothing here that the beat timeline downstream needs to stay numerically in sync with.
     const html = document.documentElement;
     this._prevOverflow = html.style.overflow;
     html.style.overflow = 'hidden';
     window.scrollTo(0, 0);
-    this.introSetup();
-    this._unlock = setTimeout(() => this.startBody(), 9000);
+    this.introDone = false;
+    this.introSequence();
 
     // Refinement helper: window.__diaSeek(u) parks the timeline at a beat unit (0–23); null resumes scroll.
     window.__diaSeek = (u) => { this._seek = u; this._last = null; };
@@ -258,7 +264,8 @@ class Component extends DCLogic {
       if (e.__dia) return;
       e.__dia = true;
       e.preventDefault();
-      if (!this.introDone) { this.skipIntro(); return; }
+      // Opening sequence is presenter-click-only — arrows do nothing until beat 1 has started.
+      if (!this.introDone) return;
       const range = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       // Re-derive the index from live scroll so a manual scroll never desyncs the walkthrough.
       const cur = (window.scrollY / range) * this.TOTAL;
@@ -275,7 +282,7 @@ class Component extends DCLogic {
     const claim = () => { try { window.focus(); document.body.focus(); } catch (e) {} };
     document.body.setAttribute('tabindex', '-1');
     document.body.style.outline = 'none';
-    this.onDown = () => { claim(); if (!this.introDone) this.skipIntro(); };
+    this.onDown = () => claim();
     document.addEventListener('pointerdown', this.onDown);
     claim();
 
@@ -286,100 +293,84 @@ class Component extends DCLogic {
   componentWillUnmount() {
     cancelAnimationFrame(this._raf);
     cancelAnimationFrame(this._glide);
-    clearTimeout(this._unlock);
     (this._it || []).forEach(clearTimeout);
-    window.removeEventListener('resize', this.introFit);
     window.removeEventListener('keydown', this.onKey);
     document.removeEventListener('keydown', this.onKey);
     document.removeEventListener('pointerdown', this.onDown);
     document.documentElement.style.overflow = '';
   }
 
-  /* ---- Opening logo sequence ------------------------------------------------
-     The brand pill is the animated element. Geometry is read from layout, so the
-     mark's centre can be pinned to the middle of the viewport while it scales,
-     then the whole lockup rides up into the pill's docked position. */
-  MARK_INTRO = 146;
-
-  introSetup() {
-    this.brand = document.getElementById('dia-brand');
-    this.pill = document.getElementById('dia-brand-pill');
-    this.bMark = document.getElementById('dia-brand-mark');
-    this.bWord = document.getElementById('dia-brand-word');
-    if (!this.brand) { this.startBody(); return; }
+  /* ---- Opening sequence --------------------------------------------------
+     Pure timers and CSS transitions on the one-time #dia-intro piece — this
+     never reads or writes u/KF/win()/STOPS. The only contract with the beat
+     timeline downstream is startBeat1()'s scrollTo(0) + introDone flip at
+     the very end, so there is nothing here that can drift out of sync with
+     the scroll-driven system the way STOPS once did. */
+  introSequence() {
     this._it = [];
-    this.introFit = () => {
-      const m = this.bMark, p = this.pill;
-      this.zBase = this.MARK_INTRO / (m.offsetWidth || 19);
-      this.dx = (m.offsetLeft + m.offsetWidth / 2) - p.offsetWidth / 2;
-      this.ty = window.innerHeight / 2 - (26 + this.brand.offsetHeight / 2);
-      if (!this.introDone) this.applyIntro(this._istep || 0, true);
-    };
-    window.addEventListener('resize', this.introFit);
-    this.introFit();
-    // The wordmark contributes to the lockup's width, so the mark's offset from the pill's centre
-    // is only correct once both images have decoded — re-measure on each load.
-    [this.bMark, this.bWord].forEach((im) => {
-      if (!im.complete) im.addEventListener('load', this.introFit);
-    });
-    this.applyIntro(0, true);
     const t = (ms, fn) => this._it.push(setTimeout(fn, ms));
-    t(1050, () => { this.introFit(); this.bMark.style.transition = 'opacity .55s ease-out'; this.bMark.style.opacity = 1; this.applyIntro(1); });
-    t(1830, () => this.applyIntro(2));
-    t(2190, () => this.applyIntro(3));
-    t(2830, () => this.applyIntro(4));
-    t(4900, () => this.dock());
+    const mark = document.getElementById('dia-intro-mark');
+    const word = document.getElementById('dia-intro-word');
+    const sub = document.getElementById('dia-intro-sub');
+    const cta = document.getElementById('dia-intro-cta');
+    this._introEls = { mark, word, sub, cta };
+
+    // Hold on the empty background, then the logomark fades and scales in (95% to 100%, eased out).
+    t(500, () => {
+      mark.style.transition = 'opacity .75s cubic-bezier(.22,.61,.36,1), transform .75s cubic-bezier(.22,.61,.36,1)';
+      mark.style.opacity = 1;
+      mark.style.transform = 'scale(1)';
+    });
+    // Mark holds alone for a beat, then the wordmark joins it — both visible together.
+    t(1600, () => { word.style.transition = 'opacity .5s ease-out'; word.style.opacity = 1; });
+    // "a critique" fades in below the lockup.
+    t(2300, () => { sub.style.transition = 'opacity .6s ease-out'; sub.style.opacity = 1; });
+    // CTA appears. No auto-advance from here — the presenter clicks when ready.
+    t(2900, () => {
+      cta.style.opacity = 1;
+      cta.style.pointerEvents = 'auto';
+    });
+
+    cta.addEventListener('click', () => this.onCtaClick(), { once: true });
   }
 
-  applyIntro(step, immediate) {
-    this._istep = step;
-    const z = step >= 3 ? 1 : step >= 2 ? 0.92 : step >= 1 ? 1.85 : 1.58;
-    const Z = this.zBase * z;
-    const off = step >= 4 ? 0 : -this.dx * Z;
-    const dur = step >= 4 ? '1.05s' : step === 3 ? '.62s' : step === 2 ? '.36s' : '.62s';
-    const ease = step < 2 ? 'cubic-bezier(.25,.62,.3,1)'
-      : step === 2 ? 'cubic-bezier(.7,.02,.95,.42)'
-      : step === 3 ? 'cubic-bezier(.18,1.68,.5,1)' : 'cubic-bezier(.22,1,.36,1)';
-    this.brand.style.transition = immediate ? 'none' : 'transform ' + dur + ' ' + ease;
-    this.brand.style.transform = 'translate(-50%,' + this.ty.toFixed(1) + 'px) translateX(' +
-      off.toFixed(1) + 'px) scale(' + Z.toFixed(4) + ')';
-    if (step >= 4) {
-      this.bWord.style.transition = 'clip-path 1s cubic-bezier(.22,1,.36,1), opacity .7s ease-out';
-      this.bWord.style.clipPath = 'inset(-8% -4% -8% -2%)';
-      this.bWord.style.opacity = 1;
-    }
-  }
-
-  dock() {
-    if (this._docking) return;
-    this._docking = true;
-    this.brand.style.transition = 'transform 1.2s cubic-bezier(.3,.9,.25,1)';
-    this.brand.style.transform = 'translate(-50%,0px) translateX(0px) scale(1)';
-    this.pill.style.transition = 'background 900ms ease-out';
-    this.pill.style.background = 'rgba(39,39,39,0.3)';
-    this.pill.style.backdropFilter = 'blur(14px)';
-    this.pill.style.webkitBackdropFilter = 'blur(14px)';
-    this._it.push(setTimeout(() => this.startBody(), 780));
-  }
-
-  // The rest of the opening — title, browser frame, credit, scroll hint — waits for the dock.
-  startBody() {
-    if (this._bodyStarted) return;
-    this._bodyStarted = true;
-    this.introDone = true;
-    clearTimeout(this._unlock);
-    const A = (id, anim) => { const el = document.getElementById(id); if (el) el.style.animation = anim; };
-    A('dia-title-h1', 'diaFadeUp 1s cubic-bezier(0.16,0.84,0.24,1) 0s forwards');
-    A('dia-frame-inner', 'diaRise 1.1s cubic-bezier(0.16,0.84,0.24,1) 0.35s forwards');
-    A('dia-badge', 'diaFadeIn 0.9s ease-out 1.2s forwards');
-    A('dia-hint-label', 'diaFadeIn 1s ease-out 1.7s forwards');
-    document.documentElement.style.overflow = this._prevOverflow || '';
-  }
-
-  skipIntro() {
+  // The one presenter-triggered moment in the piece.
+  onCtaClick() {
+    if (this._ctaClicked) return;
+    this._ctaClicked = true;
     (this._it || []).forEach(clearTimeout);
-    if (!this._docking) { this.applyIntro(4); this.dock(); }
-    else this.startBody();
+    const { mark, word, sub, cta } = this._introEls;
+    cta.style.pointerEvents = 'none';
+    cta.style.opacity = 0;
+    sub.style.opacity = 0;
+    // Wordmark fades out first, on its own — a wordmark can't sensibly become window chrome the
+    // way an icon-shaped mark can, so it needs to be out of the way before the mark does anything
+    // with the frame. Placeholder for now: the mark just fades too and we cut to beat 1. The real
+    // wordmark-becomes-chrome expansion (or its rise-from-below fallback) is the next pass.
+    word.style.transition = 'opacity .2s ease-in';
+    word.style.opacity = 0;
+    setTimeout(() => {
+      mark.style.transition = 'opacity .3s ease-in';
+      mark.style.opacity = 0;
+    }, 150);
+    setTimeout(() => this.startBeat1(), 480);
+  }
+
+  // Hands off from the gated opening into the scroll-driven beat timeline. The only thing the
+  // rest of the piece can rely on: scrollY is exactly 0 the instant introDone flips true.
+  startBeat1() {
+    if (this._beat1Started) return;
+    this._beat1Started = true;
+    const intro = document.getElementById('dia-intro');
+    if (intro) intro.style.display = 'none';
+    const A = (id, anim) => { const el = document.getElementById(id); if (el) el.style.animation = anim; };
+    A('dia-frame-inner', 'diaRise 1.1s cubic-bezier(0.16,0.84,0.24,1) 0s forwards');
+    A('dia-brand', 'diaFadeIn 0.7s ease-out 0.2s forwards');
+    A('dia-badge', 'diaFadeIn 0.9s ease-out 0.5s forwards');
+    A('dia-hint-label', 'diaFadeIn 1s ease-out 1s forwards');
+    window.scrollTo(0, 0);
+    this.introDone = true;
+    document.documentElement.style.overflow = this._prevOverflow || '';
   }
 
   // Eased scroll to a target offset — slow enough to read as a camera move, not a jump.
@@ -450,7 +441,7 @@ class Component extends DCLogic {
       if (el) el.style.opacity = v;
     };
 
-    set('dia-l-master', Math.min(1, (1 - S(10.4, 11.1)) + S(28.5, 29.1)));
+    set('dia-l-master', 1 - S(10.4, 11.1));
     set('dia-l-splitlive', win(10.4, 11.1, 13.8, 14.4));
     set('dia-l-split1', win(13.8, 14.4, 15.3, 15.9));
     set('dia-l-split2', win(15.3, 15.9, 16.7, 17.3));
@@ -475,18 +466,16 @@ class Component extends DCLogic {
     set('dia-c3a', win(21.7, 22.2, 22.7, 23.2));
     set('dia-c3b', win(23.4, 23.9, 24.3, 24.7));
 
-    // Bottom vignette only while the frame is in its tilted title/close pose.
-    set('dia-frame-scrim', Math.max(1 - S(1.6, 4.5), S(28.3, 29.3)));
-
     set('dia-hint', u > 0.15 ? 0 : '');
-    set('dia-copy-title', u < 0.05 ? '' : (1 - S(2.3, 3.0)));
     // Beats 3 and 4 only: copy sits on solid ground through the column, then blends into the screenshot.
     // The ramp is fully clear by 58% — ahead of every annotated detail (modal rows ~48%, 4B's line
     // items ~48%, the chat panel 62%+) so the fade never falls on UI the copy is pointing at.
     set('dia-veil', win(16.9, 17.7, 28.5, 29.3));
 
-    set('dia-b1', win(4.3, 4.7, 10.4, 10.9));
-    set('dia-b1-s1', win(4.5, 5.0, 6.4, 6.9));
+    // Beat 1 is already fully visible by u=0 — its "fade in" happens during the opening's own
+    // timers, before scroll ever unlocks. These ranges only govern the fade OUT into beat 2.
+    set('dia-b1', win(-1, -0.6, 10.4, 10.9));
+    set('dia-b1-s1', win(-1, -0.6, 6.4, 6.9));
     set('dia-b1-s2', win(6.8, 7.4, 8.5, 9.0));
     set('dia-b1-s3', win(8.9, 9.5, 10.4, 10.9));
 
@@ -515,6 +504,18 @@ class Component extends DCLogic {
     set('dia-close-l1', S(29.4, 29.9));
     set('dia-close-l2', S(29.7, 30.2));
     set('dia-close-l3', S(30.0, 30.5));
+
+    // Close: the persistent pill reverses its entrance, growing back into a large centered
+    // lockup as the browser (already faded via dia-l-master above) drops out of frame. Reuses
+    // the same u-range as the close copy rather than introducing a new breakpoint.
+    const cp = S(29.4, 30.3);
+    let pill = this._n['dia-brand'];
+    if (!pill || !pill.isConnected) pill = this._n['dia-brand'] = document.getElementById('dia-brand');
+    if (pill) {
+      const scale = 1 + cp * 2.6;
+      const ty = cp * Math.max(0, window.innerHeight * 0.4 - 26 - (pill.offsetHeight || 34) * scale / 2);
+      pill.style.transform = 'translateX(-50%) translateY(' + ty.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')';
+    }
   }
 
   renderVals() { return {}; }
